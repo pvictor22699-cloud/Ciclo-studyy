@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0c0c0e">
+<title>CFO Bombeiros RR — Estuda Zero</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0c0e;
+  --surf: #141418;
+  --surf2: #1c1c22;
+  --surf3: #242430;
+  --border: #242430;
+  --border2: #32323f;
+  --text: #f0f0f8;
+  --muted: #5a5a72;
+  --sub: #8888a8;
+  --accent: #e63a3a;
+  --accent2: #ff6b6b;
+  --accent-bg: rgba(230,58,58,.12);
+  --green: #2dd4a0;
+  --green-bg: rgba(45,212,160,.12);
+  --amber: #f5a623;
+  --amber-bg: rgba(245,166,35,.12);
+  --blue: #4f8ef7;
+  --blue-bg: rgba(79,142,247,.12);
+  --xp: #fbbf24;
+  --r: 14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── NAV ── */
+nav{background:rgba(12,12,14,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:52px;display:flex;align-items:center;padding:0 16px;gap:12px}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;white-space:nowrap;letter-spacing:-.02em}
+.brand em{color:var(--accent);font-style:normal}
+.nav-tabs{display:flex;gap:1px;overflow-x:auto;flex:1;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.ntab{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.74rem;font-weight:500;padding:6px 10px;border-radius:7px;cursor:pointer;white-space:nowrap;transition:.15s}
+.ntab:hover{color:var(--text);background:var(--surf2)}
+.ntab.on{color:var(--text);background:var(--surf2)}
+.nav-setup-badge{background:var(--accent);color:#fff;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:4px;font-family:'Syne',sans-serif}
+
+/* ── SCREENS ── */
+.screen{display:none;max-width:900px;margin:0 auto;padding:18px 14px 80px;animation:fadeUp .22s ease both}
+.screen.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TIPOGRAFIA ── */
+.pg-title{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.pg-sub{color:var(--muted);font-size:.78rem;margin-bottom:16px}
+.sec-label{font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin:20px 0 8px}
+
+/* ── CARDS ── */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.card-sm{background:var(--surf);border:1px solid var(--border);border-radius:11px;padding:11px 13px}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:2px 7px;font-size:.65rem;font-weight:600;white-space:nowrap}
+.b-teoria{background:var(--blue-bg);color:var(--blue)}
+.b-revisao{background:var(--amber-bg);color:var(--amber)}
+.b-questoes{background:var(--green-bg);color:var(--green)}
+.b-accent{background:var(--accent-bg);color:var(--accent2)}
+
+/* ── PROGRESS BAR ── */
+.pbar-bg{background:var(--border);border-radius:99px;overflow:hidden}
+.pbar{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.h4{height:4px}.h5{height:5px}.h6{height:6px}.h8{height:8px}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:600px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+
+/* ── STAT ── */
+.stat{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+.stat-n{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;line-height:1}
+.stat-l{font-size:.63rem;color:var(--muted);margin-top:3px}
+
+/* ── META CARD ── */
+.mc{background:var(--surf);border:1px solid var(--border);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:.14s;user-select:none}
+.mc:hover{border-color:var(--border2);background:var(--surf2)}
+.mc.done{opacity:.38}
+.mc.done .mc-top{text-decoration:line-through;color:var(--muted)}
+.mc.atrasada{border-color:rgba(230,58,58,.35);background:rgba(230,58,58,.04)}
+.mc-body{flex:1;min-width:0}
+.mc-mat{font-size:.63rem;color:var(--muted);margin-bottom:2px}
+.mc-top{font-size:.84rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-sub{font-size:.63rem;color:var(--muted);margin-top:2px}
+.chk{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s}
+.mc.done .chk{background:var(--green);border-color:var(--green)}
+.chk svg{display:none}
+.mc.done .chk svg{display:block}
+
+/* ── XP TOAST ── */
+.xp-toast{position:fixed;top:64px;right:14px;background:rgba(251,191,36,.14);border:1px solid var(--xp);border-radius:9px;padding:9px 14px;font-size:.8rem;font-weight:600;color:var(--xp);z-index:999;animation:toastIn .28s ease;pointer-events:none}
+@keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── SETUP ── */
+.setup-wrap{max-width:560px;margin:0 auto}
+.setup-step{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px}
+.setup-step-num{font-family:'Syne',sans-serif;font-size:.65rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.setup-step-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;margin-bottom:4px}
+.setup-step-desc{font-size:.78rem;color:var(--muted);margin-bottom:14px}
+
+.dias-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:4px}
+.dia-btn{border-radius:9px;border:1.5px solid var(--border2);padding:8px 3px;text-align:center;cursor:pointer;transition:.14s;background:var(--surf2)}
+.dia-btn .dia-letra{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700}
+.dia-btn .dia-nome{font-size:.55rem;font-weight:600;color:var(--muted);margin-top:1px}
+.dia-btn.on{background:var(--accent-bg);border-color:var(--accent)}
+.dia-btn.on .dia-letra,.dia-btn.on .dia-nome{color:var(--accent2)}
+
+.horas-slider-wrap{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.horas-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border2);outline:none}
+.horas-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+.horas-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent2);min-width:40px;text-align:right}
+
+.mat-toggle{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;border:1.5px solid var(--border2);background:var(--surf2);cursor:pointer;transition:.13s;margin-bottom:5px}
+.mat-toggle:hover{border-color:var(--border)}
+.mat-toggle.on{background:var(--accent-bg);border-color:rgba(230,58,58,.4)}
+.mat-toggle .mt-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.13s}
+.mat-toggle.on .mt-check{background:var(--accent);border-color:var(--accent)}
+.mat-toggle .mt-nome{font-size:.83rem;font-weight:500;flex:1}
+.mat-toggle .mt-qtd{font-size:.67rem;color:var(--muted)}
+
+/* ── NÍVEL POR MATÉRIA ── */
+.mat-nivel-wrap{background:var(--surf);border:1px solid var(--border);border-radius:11px;margin-bottom:5px;overflow:hidden}
+.mat-nivel-hdr{padding:10px 13px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:.12s}
+.mat-nivel-hdr:hover{background:var(--surf2)}
+.mat-nivel-nome{font-size:.84rem;font-weight:600;flex:1}
+.mat-nivel-arr{color:var(--muted);font-size:.62rem;transition:.24s}
+.mat-nivel-wrap.open .mat-nivel-arr{transform:rotate(180deg)}
+.mat-nivel-body{display:none;border-top:1px solid var(--border);padding:10px 12px;display:none;flex-direction:column;gap:4px}
+.mat-nivel-wrap.open .mat-nivel-body{display:flex}
+.nivel-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--surf2);border:1px solid var(--border)}
+.nivel-top{font-size:.77rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nivel-btns{display:flex;gap:3px;flex-shrink:0}
+.nivel-btn{border:1.5px solid var(--border2);background:none;color:var(--muted);font-size:.63rem;font-weight:700;padding:3px 7px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.13s;white-space:nowrap}
+.nivel-btn:hover{color:var(--text);border-color:var(--sub)}
+.nivel-btn.nv-0.on{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.nivel-btn.nv-1.on{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.nivel-btn.nv-2.on{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.nivel-mat-resumo{font-size:.65rem;color:var(--muted);margin-left:4px}
+.nivel-mat-resumo span{font-weight:700}
+.nivel-global-btns{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.nivel-global-btn{background:var(--surf2);border:1px solid var(--border2);color:var(--muted);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.73rem;font-family:'DM Sans',sans-serif;transition:.13s}
+.nivel-global-btn:hover{color:var(--text);border-color:var(--sub)}
+
+.prazo-row{display:flex;align-items:center;gap:10px}
+.prazo-input{flex:1;background:var(--surf2);border:1.5px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:9px 12px;border-radius:9px;outline:none;transition:.14s}
+.prazo-input:focus{border-color:var(--accent)}
+
+.btn-gerar{width:100%;background:var(--accent);color:#fff;border:none;padding:14px;border-radius:11px;font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:.15s;margin-top:8px;letter-spacing:.01em}
+.btn-gerar:hover{filter:brightness(1.1)}
+.btn-gerar:disabled{opacity:.4;cursor:not-allowed}
+
+.preview-box{background:var(--surf2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:.76rem;color:var(--sub);line-height:1.7}
+.preview-box strong{color:var(--text)}
+
+/* ── PAINEL ── */
+.ofensiva-bar{display:flex;gap:3px;margin-bottom:2px}
+.od{width:100%;height:28px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.od.ok{background:rgba(230,58,58,.25)}
+.od.hoje{background:var(--accent)}
+.od.vazio{background:var(--surf2)}
+.od-n{font-size:.55rem;font-weight:700}
+.od-f{font-size:.6rem}
+
+.prog-materia{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.pm-nome{font-size:.76rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-pct{font-size:.7rem;font-weight:700;width:32px;text-align:right}
+
+/* ── AGENDA ── */
+.wk-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.wk-nav h2{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;flex:1;text-align:center}
+.wbtn{background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:5px 11px;border-radius:7px;cursor:pointer;font-size:.74rem;transition:.12s;font-family:'DM Sans',sans-serif}
+.wbtn:hover{background:var(--surf3)}
+.ag-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.dc{background:var(--surf);border:1px solid var(--border);border-radius:8px;overflow:hidden;min-height:80px}
+.dc.hoje-col{border-color:var(--accent)}
+.dc.dia-livre{opacity:.4}
+.dc-h{padding:5px 3px;text-align:center;border-bottom:1px solid var(--border)}
+.dc.hoje-col .dc-h{background:var(--accent)}
+.dc-dn{font-size:.54rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+.dc.hoje-col .dc-dn,.dc.hoje-col .dc-dd{color:#fff}
+.dc-dd{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700}
+.dc-b{padding:2px}
+.ai{border-radius:4px;padding:2px 4px;margin-bottom:2px;font-size:.52rem;font-weight:500;line-height:1.3;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:.1s}
+.ai:hover{filter:brightness(1.3)}
+.ai.t{background:var(--blue-bg);color:var(--blue)}
+.ai.r{background:var(--amber-bg);color:var(--amber)}
+.ai.q{background:var(--green-bg);color:var(--green)}
+.ai.done{opacity:.28;text-decoration:line-through}
+
+/* ── CONTEÚDO VERTICALIZADO ── */
+.mat-blk{background:var(--surf);border:1px solid var(--border);border-radius:11px;margin-bottom:6px;overflow:hidden}
+.mat-hdr{padding:11px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:.12s}
+.mat-hdr:hover{background:var(--surf2)}
+.mat-nome{font-weight:600;font-size:.88rem;flex:1}
+.mat-arr{color:var(--muted);font-size:.64rem;transition:.24s}
+.mat-blk.open .mat-arr{transform:rotate(180deg)}
+.mat-tops{display:none;border-top:1px solid var(--border)}
+.mat-blk.open .mat-tops{display:block}
+.tr{padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.tr:last-child{border-bottom:none}
+.tr-nome{font-size:.8rem;flex:1}
+.fd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.f0{background:var(--border2)}.f1{background:var(--accent2)}.f2{background:var(--amber)}.f3{background:var(--green)}
+.tdots{display:flex;gap:3px}
+.td{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700}
+.td.t-on{background:var(--blue-bg);color:var(--blue)}
+.td.r-on{background:var(--amber-bg);color:var(--amber)}
+.td.q-on{background:var(--green-bg);color:var(--green)}
+.td.off{background:var(--border);color:var(--muted)}
+
+/* ── FORMS ── */
+.fg{margin-bottom:11px}
+.fl{font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em}
+.fi,.fs{width:100%;background:var(--surf2);border:1.5px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;padding:9px 11px;border-radius:9px;outline:none;transition:.14s}
+.fi:focus,.fs:focus{border-color:var(--accent)}
+.fs option{background:var(--surf2)}
+.tg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.tb{background:var(--surf2);border:1.5px solid var(--border2);color:var(--muted);padding:8px 5px;border-radius:8px;cursor:pointer;font-size:.74rem;font-weight:600;text-align:center;transition:.14s;font-family:'DM Sans',sans-serif}
+.tb.sT{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.tb.sR{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.tb.sQ{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.dg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.db2{background:var(--surf2);border:1.5px solid var(--border2);color:var(--muted);padding:7px 5px;border-radius:8px;cursor:pointer;font-size:.72rem;font-weight:600;text-align:center;transition:.14s;font-family:'DM Sans',sans-serif}
+.db2.sF{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.db2.sM{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.db2.sD{background:var(--accent-bg);border-color:var(--accent);color:var(--accent2)}
+.mbtns{display:flex;gap:8px;margin-top:12px}
+.bp{flex:1;background:var(--accent);color:#fff;border:none;padding:10px;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;transition:.14s}
+.bp:hover{filter:brightness(1.1)}
+.bs{background:var(--surf2);border:1px solid var(--border2);color:var(--muted);padding:10px 14px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:.14s}
+.bs:hover{color:var(--text)}
+
+/* ── OVERLAY / MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;align-items:center;justify-content:center;padding:14px}
+.overlay.on{display:flex}
+.modal{background:var(--surf);border:1px solid var(--border2);border-radius:18px;padding:20px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;animation:fadeUp .2s ease}
+.modal h3{font-family:'Syne',sans-serif;font-size:.98rem;font-weight:800;margin-bottom:13px}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:18px;right:14px;width:48px;height:48px;background:var(--accent);border:none;border-radius:50%;color:#fff;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 20px rgba(230,58,58,.45);transition:.16s;z-index:300;display:flex;align-items:center;justify-content:center}
+.fab:hover{transform:scale(1.08)}
+
+/* ── TÓPICO LIST ── */
+.tsl{max-height:150px;overflow-y:auto;border:1px solid var(--border2);border-radius:8px;margin-top:4px}
+.tsi{padding:7px 11px;font-size:.8rem;cursor:pointer;transition:.1s;border-bottom:1px solid var(--border)}
+.tsi:last-child{border-bottom:none}
+.tsi:hover{background:var(--surf3)}
+
+/* ── CICLO PREV ── */
+.ciclo-prev{background:var(--surf2);border:1px solid var(--border2);border-radius:9px;padding:10px 13px;margin-top:8px;display:none}
+.ciclo-step{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px solid var(--border)}
+.ciclo-step:last-child{border-bottom:none}
+
+/* ── BACKUP ── */
+.backup-area{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.btn-backup{background:var(--surf2);border:1px solid var(--border2);color:var(--text);padding:9px 14px;border-radius:9px;cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif;transition:.13s;display:flex;align-items:center;gap:5px}
+.btn-backup:hover{background:var(--surf3)}
+
+.empty{text-align:center;padding:28px 16px;color:var(--muted)}
+
+/* ── URGENTE ── */
+.urg-banner{background:rgba(230,58,58,.08);border:1px solid rgba(230,58,58,.25);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:9px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">cfo <em>bombeiros</em></div>
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="ntab on" data-s="painel" onclick="goTo('painel')">🏠 Painel</button>
+    <button class="ntab" data-s="agenda" onclick="goTo('agenda')">📅 Agenda</button>
+    <button class="ntab" data-s="vertical" onclick="goTo('vertical')">📚 Conteúdo</button>
+    <button class="ntab" data-s="config" onclick="goTo('config')">⚙️ Assuntos</button>
+    <button class="ntab" data-s="setup" onclick="goTo('setup')">🎯 Configuração</button>
+  </div>
+</nav>
+
+<!-- ═══ PAINEL ═══ -->
+<div id="sc-painel" class="screen on">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div class="pg-title">Meu <span style="color:var(--accent2)">Painel</span></div>
+      <div class="pg-sub" id="p-data"></div>
+    </div>
+    <div id="p-hj-badge" style="background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:7px 11px;font-size:.72rem;text-align:right"></div>
+  </div>
+
+  <!-- Ofensiva -->
+  <div id="ofensiva-wrap" style="background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px"></div>
+
+  <!-- Stats -->
+  <div class="g4" style="margin-bottom:12px" id="p-stats"></div>
+
+  <!-- Progresso geral -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:.78rem;font-weight:500">Progresso geral</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent2);font-size:.84rem" id="p-prog-l">0/0</span>
+    </div>
+    <div class="pbar-bg h8"><div class="pbar" id="p-prog-b" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--green))"></div></div>
+  </div>
+
+  <!-- Urgentes -->
+  <div id="urg-w"></div>
+
+  <!-- Metas hoje -->
+  <div class="sec-label">📋 Metas de hoje</div>
+  <div id="p-hoje" style="display:flex;flex-direction:column;gap:5px"></div>
+
+  <!-- Atrasadas -->
+  <div class="sec-label" style="margin-top:18px">⚠️ Atrasadas</div>
+  <div id="p-atras" style="display:flex;flex-direction:column;gap:5px"></div>
+</div>
+
+<!-- ═══ AGENDA ═══ -->
+<div id="sc-agenda" class="screen">
+  <div class="wk-nav">
+    <button class="wbtn" onclick="wkOff(-1)">← Ant.</button>
+    <h2 id="wk-lbl"></h2>
+    <button class="wbtn" onclick="wkOff(1)">Próx. →</button>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <span style="font-size:.68rem;color:var(--blue);display:flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:2px;background:var(--blue-bg);display:inline-block"></span>Teoria</span>
+    <span style="font-size:.68rem;color:var(--amber);display:flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:2px;background:var(--amber-bg);display:inline-block"></span>Revisão</span>
+    <span style="font-size:.68rem;color:var(--green);display:flex;align-items:center;gap:3px"><span style="width:7px;height:7px;border-radius:2px;background:var(--green-bg);display:inline-block"></span>Questões</span>
+  </div>
+  <div class="ag-grid" id="ag"></div>
+</div>
+
+<!-- ═══ VERTICAL ═══ -->
+<div id="sc-vertical" class="screen">
+  <div class="pg-title" style="margin-bottom:3px">Conteúdo <span style="color:var(--green)">Verticalizado</span></div>
+  <div class="pg-sub">Acompanhe o progresso assunto por assunto</div>
+  <div class="card" style="margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="flex:1;min-width:80px">
+      <div style="font-size:.68rem;color:var(--muted);margin-bottom:2px">Dominados</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800" id="vt-n">0</div>
+    </div>
+    <div style="flex:3;min-width:120px"><div class="pbar-bg h8"><div class="pbar" id="vt-b" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--green))"></div></div></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;color:var(--accent2)" id="vt-p">0%</div>
+  </div>
+  <div id="vt-list"></div>
+</div>
+
+<!-- ═══ CONFIG ═══ -->
+<div id="sc-config" class="screen">
+  <div class="pg-title" style="margin-bottom:3px">Gerenciar <span style="color:var(--amber)">Assuntos</span></div>
+  <div class="pg-sub">Adicione ou edite os assuntos do edital</div>
+  <div class="card" style="margin-bottom:14px">
+    <div style="font-size:.7rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px">💾 Backup</div>
+    <div class="backup-area">
+      <button class="btn-backup" onclick="exportar()">📤 Exportar</button>
+      <button class="btn-backup" onclick="document.getElementById('imp-file').click()">📥 Importar</button>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importar(event)">
+      <button class="btn-backup" style="color:var(--accent2);border-color:rgba(230,58,58,.3)" onclick="resetarTudo()">🗑️ Resetar tudo</button>
+    </div>
+  </div>
+  <div id="cfg-list" style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px"></div>
+  <button class="bp" style="max-width:260px" onclick="openModal()">+ Adicionar assunto</button>
+</div>
+
+<!-- ═══ SETUP ═══ -->
+<div id="sc-setup" class="screen">
+  <div class="pg-title" style="margin-bottom:3px">🎯 Configuração <span style="color:var(--accent2)">do Ciclo</span></div>
+  <div class="pg-sub">Defina sua disponibilidade e o app distribui as metas automaticamente</div>
+
+  <div class="setup-wrap">
+
+    <!-- Dias da semana -->
+    <div class="setup-step">
+      <div class="setup-step-num">Passo 1</div>
+      <div class="setup-step-title">Quais dias você estuda?</div>
+      <div class="setup-step-desc">Marque os dias disponíveis. O app só agendará metas nesses dias.</div>
+      <div class="dias-grid" id="dias-grid"></div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:6px" id="dias-info"></div>
+    </div>
+
+    <!-- Horas por dia -->
+    <div class="setup-step">
+      <div class="setup-step-num">Passo 2</div>
+      <div class="setup-step-title">Quantas horas por dia?</div>
+      <div class="setup-step-desc">Estimamos 30–40 min por assunto. Isso determina quantas metas por dia.</div>
+      <div class="horas-slider-wrap">
+        <input type="range" class="horas-slider" id="horas-slider" min="1" max="8" step="0.5" value="2" oninput="onHorasChange()">
+        <div class="horas-val" id="horas-val">2h</div>
+      </div>
+      <div style="font-size:.7rem;color:var(--muted)" id="horas-info"></div>
+    </div>
+
+    <!-- Prazo -->
+    <div class="setup-step">
+      <div class="setup-step-num">Passo 3</div>
+      <div class="setup-step-title">Até quando é a prova?</div>
+      <div class="setup-step-desc">Data limite para distribuir todas as metas do edital.</div>
+      <input type="date" class="prazo-input" id="prazo-input" oninput="onPrazoChange()">
+    </div>
+
+    <!-- Matérias -->
+    <div class="setup-step">
+      <div class="setup-step-num">Passo 4</div>
+      <div class="setup-step-title">Quais matérias incluir?</div>
+      <div class="setup-step-desc">Selecione as matérias do edital CFO/QOCBM que você vai estudar.</div>
+      <div id="mat-toggles"></div>
+    </div>
+
+    <!-- Nível por assunto -->
+    <div class="setup-step" id="step-niveis" style="display:none">
+      <div class="setup-step-num">Passo 5</div>
+      <div class="setup-step-title">Qual seu nível em cada assunto?</div>
+      <div class="setup-step-desc">Isso define por onde o ciclo começa. Seja honesto — isso determina a ordem dos estudos.</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <div style="display:flex;gap:5px;align-items:center;font-size:.7rem;color:var(--blue)"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue-bg);display:inline-block"></span>Nunca vi — começa por Teoria</div>
+        <div style="display:flex;gap:5px;align-items:center;font-size:.7rem;color:var(--amber)"><span style="width:8px;height:8px;border-radius:2px;background:var(--amber-bg);display:inline-block"></span>Já estudei — começa por Revisão</div>
+        <div style="display:flex;gap:5px;align-items:center;font-size:.7rem;color:var(--green)"><span style="width:8px;height:8px;border-radius:2px;background:var(--green-bg);display:inline-block"></span>Conheço bem — começa por Questões</div>
+      </div>
+      <div class="nivel-global-btns">
+        <button class="nivel-global-btn" onclick="setNivelTodos(0)">📖 Todos: Nunca vi</button>
+        <button class="nivel-global-btn" onclick="setNivelTodos(1)">🔄 Todos: Já estudei</button>
+        <button class="nivel-global-btn" onclick="setNivelTodos(2)">✅ Todos: Conheço bem</button>
+      </div>
+      <div id="niveis-list"></div>
+    </div>
+
+    <!-- Preview + Botão -->
+    <div id="setup-preview" class="preview-box" style="margin-bottom:12px;display:none"></div>
+
+    <button class="btn-gerar" id="btn-gerar" onclick="gerarCiclo()" disabled>⚡ Gerar ciclo de estudos</button>
+    <div style="font-size:.71rem;color:var(--muted);text-align:center;margin-top:8px" id="setup-warn"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="overlay" id="ov" onclick="closeOv(event)">
+  <div class="modal">
+    <h3 id="m-title">Novo Assunto</h3>
+    <div class="fg">
+      <label class="fl">Matéria</label>
+      <select class="fs" id="m-mat" onchange="onMat()">
+        <option value="">Selecione...</option>
+        <option>Língua Portuguesa</option>
+        <option>Matemática e Raciocínio Lógico</option>
+        <option>Defesa Civil e Direito Ambiental</option>
+        <option>Conhecimentos Específicos (Legislação)</option>
+        <option>Física e Química</option>
+        <option>Atualidades, História e Geografia</option>
+        <option>Noções de Informática</option>
+        <option value="__nova__">+ Nova matéria...</option>
+      </select>
+      <input class="fi" id="m-mat-n" placeholder="Nome da nova matéria" style="display:none;margin-top:6px">
+    </div>
+    <div class="fg">
+      <label class="fl">Assunto / Tópico</label>
+      <input class="fi" id="m-top" placeholder="Digite ou selecione..." oninput="filterT()">
+      <div class="tsl" id="m-tsl" style="display:none"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Tipo de início</label>
+      <div class="tg">
+        <button class="tb" onclick="selT('T')">📖 Teoria</button>
+        <button class="tb" onclick="selT('R')">🔄 Revisão</button>
+        <button class="tb" onclick="selT('Q')">✅ Questões</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Dificuldade</label>
+      <div class="dg">
+        <button class="db2" onclick="selD('F')">Fácil</button>
+        <button class="db2" onclick="selD('M')">Médio</button>
+        <button class="db2" onclick="selD('D')">Difícil</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Data de início</label>
+      <input type="date" class="fi" id="m-data" oninput="updPrev()">
+    </div>
+    <div class="ciclo-prev" id="ciclo-prev">
+      <div style="font-size:.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Prévia do ciclo</div>
+      <div id="ciclo-steps"></div>
+    </div>
+    <div class="mbtns">
+      <button class="bs" onclick="closeModal()">Cancelar</button>
+      <button class="bp" onclick="salvar()">🚀 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<button class="fab" onclick="openModal()" title="Adicionar assunto">+</button>
+
+<script>
+// ══════════════════════════════════════════════
+// BANCO DE TÓPICOS
+// ══════════════════════════════════════════════
+const BANCO = {
+  "Língua Portuguesa":["Leitura e interpretação de textos verbais","Leitura e interpretação de textos mistos e não verbais","Textos publicitários e propagandas","Flexões nominais e verbais","Advérbio e suas circunstâncias","Preposições e conjunções","Frase, oração e período","Termos essenciais da oração","Termos integrantes e acessórios da oração","Coordenação e subordinação","Sintaxe de colocação","Concordância nominal e verbal","Regência nominal e verbal","Crase","Formas de discurso: direto, indireto e indireto livre","Sinonímia, antonímia e heteronímia","Pontuação e recursos sintático-semânticos","Acentuação e ortografia","Redação técnica (oficial) e redação estilística","Correspondência oficial — ofício e memorando"],
+  "Matemática e Raciocínio Lógico":["Lógica matemática — proposições e valores lógicos","Operações lógicas e negação","Sentenças abertas e quantificadores","Conjuntos numéricos: naturais, inteiros, racionais, reais e complexos","Sequências numéricas, PA e PG","Expressões algébricas e polinômios","Equações e inequações polinomiais","Funções de 1º e 2º grau","Funções modular, exponencial e logarítmica","Sistemas lineares, matrizes e determinantes","Análise combinatória: arranjos, permutações e combinações","Binômio de Newton e probabilidade","Geometria plana: figuras, congruência, semelhança, perímetro e área","Geometria espacial: sólidos, áreas e volumes","Geometria analítica: retas, circunferência e distâncias","Trigonometria: razões, funções e equações","Porcentagem, acréscimos e descontos","Juros simples e composto","Estatística descritiva: medidas de tendência central e dispersão","Gráficos estatísticos"],
+  "Defesa Civil e Direito Ambiental":["Lei nº 12.608/2012 — PNPDEC: diretrizes e objetivos","Competências dos entes federados (PNPDEC)","Sistema Nacional de Proteção e Defesa Civil — SINPDEC","Conselho Nacional — CONPDEC","Instrução Normativa nº 01/2012 — situação de emergência e calamidade","Glossário de termos de Defesa Civil (COBRADE, FIDE, DEATE)","Glossário de Defesa Civil, estudos de riscos e medicina de desastres","Gestão ambiental — sustentabilidade e controle","Gestão de resíduos sólidos","Direito Constitucional Ambiental — histórico e fundamentos","Conceito constitucional de meio ambiente","Ações constitucionais e processo ambiental","Direito Ambiental Administrativo — SISNAMA","Controle ambiental preventivo e sancionador","Direito Ambiental Internacional — biodiversidade e biossegurança","Direito Penal Ambiental — crimes ambientais"],
+  "Conhecimentos Específicos (Legislação)":["LC nº 194/2012 — Estatuto dos Militares Estaduais de RR","LC nº 052/2001 — organização do CBMRR","LC nº 082/2004 — normas complementares do CBMRR","Normas Técnicas do CBMRR","Constituição do Estado de Roraima"],
+  "Física e Química":["Mecânica: grandezas escalares e vetoriais, MRU e MRUV","Mecânica: leis de Newton e equilíbrio","Mecânica: trabalho, potência e energia","Mecânica: quantidade de movimento e gravitação","Fluidos: densidade, pressão e princípio de Arquimedes","Termodinâmica: temperatura, escalas e dilatação","Termodinâmica: gases ideais e transformações","1ª e 2ª Leis da Termodinâmica","Vibrações e ondas: MHS, ondas elásticas e som","Ótica: reflexão, refração, espelhos e lentes","Eletricidade: carga elétrica, campo elétrico e potencial","Eletricidade: corrente, resistência, Lei de Ohm e Efeito Joule","Eletricidade: circuitos elétricos e geradores","Eletromagnetismo: campo magnético e indução","Física moderna: quantização, efeito fotoelétrico e radioatividade","Química: estados físicos, mudanças de fase e propriedades dos materiais","Química: estrutura atômica — modelos de Dalton, Thomson, Rutherford e Bohr","Química: periodicidade — tabela periódica e propriedades","Química: ligações químicas e interações intermoleculares","Química: reações químicas, balanceamento e estequiometria","Química: soluções, solubilidade e propriedades coligativas","Química: termoquímica e lei de Hess","Química: cinética e equilíbrio químico","Química: ácidos, bases e pH","Química orgânica: grupos funcionais, hidrocarbonetos e polímeros"],
+  "Atualidades, História e Geografia":["Atualidades: segurança, política, economia e sociedade","Atualidades: saúde, tecnologia, energia e meio ambiente","Atualidades: relações internacionais e desenvolvimento sustentável","História de Roraima: ocupação territorial e presença portuguesa","História de Roraima: século XIX e XX, criação do Território e do Estado","História de Roraima: municípios, patrimônios e pontos turísticos","História de Roraima: reservas indígenas e governadores","História Geral: expansão europeia e colonização do Brasil","História Geral: independência do Brasil e Período Imperial","História Geral: República, Era Vargas e guerras mundiais","História Geral: redemocratização, ditadura militar e Nova República","História Geral: Brasil contemporâneo e globalização","Geografia de Roraima: clima, solos, relevo e hidrografia","Geografia de Roraima: tribos indígenas, economia e extrativismo","Geografia Geral: representação espacial, coordenadas e mapas","Geografia Geral: geologia, relevo e climas do Brasil","Geografia Geral: população, urbanização e espaço agrário","Geografia Geral: espaço industrial, recursos minerais e geopolítica"],
+  "Noções de Informática":["Sistema operacional Linux e Windows","Edição de textos — Microsoft Word e BrOffice Writer","Planilhas — Microsoft Excel e BrOffice Calc","Apresentações — Microsoft PowerPoint e BrOffice Impress","Redes de computadores — conceitos básicos","Internet e intranet — ferramentas e procedimentos","Navegadores web (IE, Firefox, Chrome)","Correio eletrônico (Outlook, Thunderbird)","Organização de arquivos, pastas e programas","Segurança da informação — procedimentos e backup","Vírus, worms, pragas virtuais e antivírus","Fundamentos de computação e arquitetura de computadores","Topologias de rede e elementos de interconexão","Serviços de rede: DNS, DHCP, HTTP, FTP, SSL, SSH"]
+};
+
+// ══════════════════════════════════════════════
+// DADOS PRÉ-CADASTRADOS (118 tópicos)
+// ══════════════════════════════════════════════
+const ASSUNTOS_PADRAO = [
+  {mat:"Língua Portuguesa",top:"Leitura e interpretação de textos verbais",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Leitura e interpretação de textos mistos e não verbais",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Textos publicitários e propagandas",ti:"Q",dif:"F"},
+  {mat:"Língua Portuguesa",top:"Flexões nominais e verbais",ti:"R",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Advérbio e suas circunstâncias",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Preposições e conjunções",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Frase, oração e período",ti:"T",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Termos essenciais da oração",ti:"R",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Termos integrantes e acessórios da oração",ti:"R",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Coordenação e subordinação",ti:"Q",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Sintaxe de colocação",ti:"Q",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Concordância nominal e verbal",ti:"Q",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Regência nominal e verbal",ti:"Q",dif:"D"},
+  {mat:"Língua Portuguesa",top:"Crase",ti:"Q",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Formas de discurso: direto, indireto e indireto livre",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Sinonímia, antonímia e heteronímia",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Pontuação e recursos sintático-semânticos",ti:"Q",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Acentuação e ortografia",ti:"Q",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Redação técnica (oficial) e redação estilística",ti:"T",dif:"M"},
+  {mat:"Língua Portuguesa",top:"Correspondência oficial — ofício e memorando",ti:"T",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Lógica matemática — proposições e valores lógicos",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Operações lógicas e negação",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Sentenças abertas e quantificadores",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Conjuntos numéricos: naturais, inteiros, racionais, reais e complexos",ti:"T",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Sequências numéricas, PA e PG",ti:"R",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Expressões algébricas e polinômios",ti:"T",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Equações e inequações polinomiais",ti:"Q",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Funções de 1º e 2º grau",ti:"Q",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Funções modular, exponencial e logarítmica",ti:"Q",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Sistemas lineares, matrizes e determinantes",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Análise combinatória: arranjos, permutações e combinações",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Binômio de Newton e probabilidade",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Geometria plana: figuras, congruência, semelhança, perímetro e área",ti:"R",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Geometria espacial: sólidos, áreas e volumes",ti:"R",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Geometria analítica: retas, circunferência e distâncias",ti:"Q",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Trigonometria: razões, funções e equações",ti:"T",dif:"D"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Porcentagem, acréscimos e descontos",ti:"Q",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Juros simples e composto",ti:"Q",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Estatística descritiva: medidas de tendência central e dispersão",ti:"T",dif:"M"},
+  {mat:"Matemática e Raciocínio Lógico",top:"Gráficos estatísticos",ti:"Q",dif:"F"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Lei nº 12.608/2012 — PNPDEC: diretrizes e objetivos",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Competências dos entes federados (PNPDEC)",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Sistema Nacional de Proteção e Defesa Civil — SINPDEC",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Conselho Nacional — CONPDEC",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Instrução Normativa nº 01/2012 — situação de emergência e calamidade",ti:"R",dif:"D"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Glossário de termos de Defesa Civil (COBRADE, FIDE, DEATE)",ti:"R",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Glossário de Defesa Civil, estudos de riscos e medicina de desastres",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Gestão ambiental — sustentabilidade e controle",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Gestão de resíduos sólidos",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Direito Constitucional Ambiental — histórico e fundamentos",ti:"T",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Conceito constitucional de meio ambiente",ti:"Q",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Ações constitucionais e processo ambiental",ti:"Q",dif:"D"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Direito Ambiental Administrativo — SISNAMA",ti:"Q",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Controle ambiental preventivo e sancionador",ti:"Q",dif:"M"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Direito Ambiental Internacional — biodiversidade e biossegurança",ti:"T",dif:"D"},
+  {mat:"Defesa Civil e Direito Ambiental",top:"Direito Penal Ambiental — crimes ambientais",ti:"Q",dif:"M"},
+  {mat:"Conhecimentos Específicos (Legislação)",top:"LC nº 194/2012 — Estatuto dos Militares Estaduais de RR",ti:"T",dif:"D"},
+  {mat:"Conhecimentos Específicos (Legislação)",top:"LC nº 052/2001 — organização do CBMRR",ti:"T",dif:"D"},
+  {mat:"Conhecimentos Específicos (Legislação)",top:"LC nº 082/2004 — normas complementares do CBMRR",ti:"T",dif:"D"},
+  {mat:"Conhecimentos Específicos (Legislação)",top:"Normas Técnicas do CBMRR",ti:"R",dif:"D"},
+  {mat:"Conhecimentos Específicos (Legislação)",top:"Constituição do Estado de Roraima",ti:"Q",dif:"M"},
+  {mat:"Física e Química",top:"Mecânica: grandezas escalares e vetoriais, MRU e MRUV",ti:"T",dif:"M"},
+  {mat:"Física e Química",top:"Mecânica: leis de Newton e equilíbrio",ti:"T",dif:"M"},
+  {mat:"Física e Química",top:"Mecânica: trabalho, potência e energia",ti:"Q",dif:"M"},
+  {mat:"Física e Química",top:"Mecânica: quantidade de movimento e gravitação",ti:"Q",dif:"D"},
+  {mat:"Física e Química",top:"Fluidos: densidade, pressão e princípio de Arquimedes",ti:"Q",dif:"M"},
+  {mat:"Física e Química",top:"Termodinâmica: temperatura, escalas e dilatação",ti:"T",dif:"M"},
+  {mat:"Física e Química",top:"Termodinâmica: gases ideais e transformações",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"1ª e 2ª Leis da Termodinâmica",ti:"Q",dif:"D"},
+  {mat:"Física e Química",top:"Vibrações e ondas: MHS, ondas elásticas e som",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Ótica: reflexão, refração, espelhos e lentes",ti:"T",dif:"M"},
+  {mat:"Física e Química",top:"Eletricidade: carga elétrica, campo elétrico e potencial",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Eletricidade: corrente, resistência, Lei de Ohm e Efeito Joule",ti:"Q",dif:"M"},
+  {mat:"Física e Química",top:"Eletricidade: circuitos elétricos e geradores",ti:"Q",dif:"D"},
+  {mat:"Física e Química",top:"Eletromagnetismo: campo magnético e indução",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Física moderna: quantização, efeito fotoelétrico e radioatividade",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Química: estados físicos, mudanças de fase e propriedades dos materiais",ti:"T",dif:"M"},
+  {mat:"Física e Química",top:"Química: estrutura atômica — modelos de Dalton, Thomson, Rutherford e Bohr",ti:"T",dif:"M"},
+  {mat:"Física e Química",top:"Química: periodicidade — tabela periódica e propriedades",ti:"R",dif:"M"},
+  {mat:"Física e Química",top:"Química: ligações químicas e interações intermoleculares",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Química: reações químicas, balanceamento e estequiometria",ti:"Q",dif:"D"},
+  {mat:"Física e Química",top:"Química: soluções, solubilidade e propriedades coligativas",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Química: termoquímica e lei de Hess",ti:"Q",dif:"D"},
+  {mat:"Física e Química",top:"Química: cinética e equilíbrio químico",ti:"T",dif:"D"},
+  {mat:"Física e Química",top:"Química: ácidos, bases e pH",ti:"Q",dif:"M"},
+  {mat:"Física e Química",top:"Química orgânica: grupos funcionais, hidrocarbonetos e polímeros",ti:"T",dif:"D"},
+  {mat:"Atualidades, História e Geografia",top:"Atualidades: segurança, política, economia e sociedade",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Atualidades: saúde, tecnologia, energia e meio ambiente",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Atualidades: relações internacionais e desenvolvimento sustentável",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História de Roraima: ocupação territorial e presença portuguesa",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História de Roraima: século XIX e XX, criação do Território e do Estado",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História de Roraima: municípios, patrimônios e pontos turísticos",ti:"R",dif:"F"},
+  {mat:"Atualidades, História e Geografia",top:"História de Roraima: reservas indígenas e governadores",ti:"R",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História Geral: expansão europeia e colonização do Brasil",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História Geral: independência do Brasil e Período Imperial",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História Geral: República, Era Vargas e guerras mundiais",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História Geral: redemocratização, ditadura militar e Nova República",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"História Geral: Brasil contemporâneo e globalização",ti:"Q",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Geografia de Roraima: clima, solos, relevo e hidrografia",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Geografia de Roraima: tribos indígenas, economia e extrativismo",ti:"R",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Geografia Geral: representação espacial, coordenadas e mapas",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Geografia Geral: geologia, relevo e climas do Brasil",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Geografia Geral: população, urbanização e espaço agrário",ti:"T",dif:"M"},
+  {mat:"Atualidades, História e Geografia",top:"Geografia Geral: espaço industrial, recursos minerais e geopolítica",ti:"Q",dif:"M"},
+  {mat:"Noções de Informática",top:"Sistema operacional Linux e Windows",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Edição de textos — Microsoft Word e BrOffice Writer",ti:"T",dif:"F"},
+  {mat:"Noções de Informática",top:"Planilhas — Microsoft Excel e BrOffice Calc",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Apresentações — Microsoft PowerPoint e BrOffice Impress",ti:"T",dif:"F"},
+  {mat:"Noções de Informática",top:"Redes de computadores — conceitos básicos",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Internet e intranet — ferramentas e procedimentos",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Navegadores web (IE, Firefox, Chrome)",ti:"T",dif:"F"},
+  {mat:"Noções de Informática",top:"Correio eletrônico (Outlook, Thunderbird)",ti:"T",dif:"F"},
+  {mat:"Noções de Informática",top:"Organização de arquivos, pastas e programas",ti:"T",dif:"F"},
+  {mat:"Noções de Informática",top:"Segurança da informação — procedimentos e backup",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Vírus, worms, pragas virtuais e antivírus",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Fundamentos de computação e arquitetura de computadores",ti:"T",dif:"M"},
+  {mat:"Noções de Informática",top:"Topologias de rede e elementos de interconexão",ti:"T",dif:"D"},
+  {mat:"Noções de Informática",top:"Serviços de rede: DNS, DHCP, HTTP, FTP, SSL, SSH",ti:"T",dif:"D"},
+];
+
+// ══════════════════════════════════════════════
+// HELPERS DE DATA
+// ══════════════════════════════════════════════
+const fd = d => d instanceof Date ? d.toISOString().split('T')[0] : d;
+const hoje = () => fd(new Date());
+function addDias(ds, n) { const d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() + n); return fd(d); }
+function diffDias(a, b) { return Math.round((new Date(a) - new Date(b)) / 864e5); }
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+function carregarState() {
+  try { const r = localStorage.getItem('cfo_bm_v2'); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+function salvarState() { localStorage.setItem('cfo_bm_v2', JSON.stringify(S)); }
+
+function estadoInicial() {
+  return {
+    assuntos: [],   // lista de assuntos cadastrados
+    metas: [],      // metas geradas pelo ciclo
+    concluidas: {}, // id -> data de conclusão
+    streak: { last: '', n: 0 },
+    wkOffset: 0,
+    setup: null,    // configuração do ciclo
+    xp: {}
+  };
+}
+
+let S = carregarState() || estadoInicial();
+const sv = () => salvarState();
+const isc = id => !!S.concluidas[id];
+
+// ══════════════════════════════════════════════
+// GERAÇÃO INTELIGENTE DO CICLO
+// ══════════════════════════════════════════════
+
+// Intervalo de revisão por dificuldade
+function intervalos(dif) {
+  if (dif === 'F') return { r1: 7, q1: 7, r2: 21 };
+  if (dif === 'D') return { r1: 3, q1: 3, r2: 10 };
+  return { r1: 5, q1: 5, r2: 15 };
+}
+
+// Distribui as metas respeitando diasEstudo e maxMetasDia
+function distribuirMetas(assuntos, cfg) {
+  const { diasSemana, maxMetasDia, inicio, prazo } = cfg;
+  // Gera sequência de dias disponíveis a partir de hoje até o prazo
+  const diasDisp = [];
+  let d = new Date(inicio + 'T12:00:00');
+  const fim = new Date(prazo + 'T12:00:00');
+  while (d <= fim) {
+    const dow = d.getDay(); // 0=Dom, 1=Seg...
+    if (diasSemana.includes(dow)) diasDisp.push(fd(d));
+    d.setDate(d.getDate() + 1);
+  }
+  if (!diasDisp.length) return [];
+
+  // Índice de ocupação por dia
+  const ocupacao = {};
+  diasDisp.forEach(dd => ocupacao[dd] = 0);
+
+  // Função: próximo dia disponível a partir de uma data preferida
+  function proxDia(preferred) {
+    // Encontra o índice do dia preferido ou o mais próximo
+    let idx = diasDisp.findIndex(dd => dd >= preferred);
+    if (idx === -1) idx = diasDisp.length - 1;
+    // Avança se estiver cheio
+    let tentativas = 0;
+    while (ocupacao[diasDisp[idx]] >= maxMetasDia && tentativas < diasDisp.length) {
+      idx = (idx + 1) % diasDisp.length;
+      tentativas++;
+    }
+    return diasDisp[idx];
+  }
+
+  const metas = [];
+  const mk = (aid, mat, top, tipo, dataPreferida, reforco = false, dif = 'M') => {
+    const data = proxDia(dataPreferida);
+    ocupacao[data] = (ocupacao[data] || 0) + 1;
+    const id = `${aid}_${tipo}_${data}_${metas.length}`;
+    return { id, aid, mat, top, tipo, data, reforco, dif };
+  };
+
+  assuntos.forEach((a, i) => {
+    const aid = a.id || 'a' + i;
+    const v = intervalos(a.dif || 'M');
+    // Data base: distribui o início dos assuntos pelos primeiros dias disponíveis
+    const idxBase = Math.floor(i * maxMetasDia / maxMetasDia);
+    const dataBase = diasDisp[Math.min(Math.floor(i / maxMetasDia), diasDisp.length - 1)] || diasDisp[0];
+
+    if (a.ti === 'T') {
+      const m1 = mk(aid, a.mat, a.top, 'teoria', dataBase, false, a.dif);
+      const m2 = mk(aid, a.mat, a.top, 'revisao', addDias(m1.data, v.r1), false, a.dif);
+      const m3 = mk(aid, a.mat, a.top, 'questoes', addDias(m2.data, v.q1), false, a.dif);
+      const m4 = mk(aid, a.mat, a.top, 'revisao', addDias(m3.data, v.r2), true, a.dif);
+      metas.push(m1, m2, m3, m4);
+    } else if (a.ti === 'R') {
+      const m1 = mk(aid, a.mat, a.top, 'revisao', dataBase, false, a.dif);
+      const m2 = mk(aid, a.mat, a.top, 'questoes', addDias(m1.data, 4), false, a.dif);
+      const m3 = mk(aid, a.mat, a.top, 'revisao', addDias(m2.data, v.r2), true, a.dif);
+      metas.push(m1, m2, m3);
+    } else {
+      const m1 = mk(aid, a.mat, a.top, 'questoes', dataBase, false, a.dif);
+      const m2 = mk(aid, a.mat, a.top, 'revisao', addDias(m1.data, 5), false, a.dif);
+      metas.push(m1, m2);
+    }
+  });
+
+  return metas;
+}
+
+function gerarCiclo() {
+  const cfg = lerSetup();
+  if (!cfg) return;
+
+  const matsEl = document.querySelectorAll('.mat-toggle.on');
+  const matsSel = [...matsEl].map(el => el.dataset.mat);
+  if (!matsSel.length) { alert('Selecione ao menos uma matéria!'); return; }
+
+  // Mapeamento de nível → ponto de entrada no ciclo
+  // 0 = Nunca vi     → Teoria (T)
+  // 1 = Já estudei   → Revisão (R)
+  // 2 = Conheço bem  → Questões (Q)
+  const nivelParaTi = ['T', 'R', 'Q'];
+
+  const assuntos = ASSUNTOS_PADRAO
+    .filter(a => matsSel.includes(a.mat))
+    .map((a, i) => {
+      const key = a.mat + '|' + a.top;
+      const nivel = niveisAssuntos[key] ?? 0; // padrão: nunca vi
+      return { ...a, id: 'a' + i, ti: nivelParaTi[nivel] };
+    });
+
+  // Preserva assuntos extras adicionados manualmente
+  const extras = S.assuntos.filter(a => !ASSUNTOS_PADRAO.some(p => p.mat === a.mat && p.top === a.top));
+  const todosAssuntos = [...assuntos, ...extras.map((a, i) => ({ ...a, id: 'x' + i }))];
+
+  const horas = parseFloat(document.getElementById('horas-slider').value);
+  const maxMetas = Math.max(1, Math.floor(horas / 0.5));
+  const diasSemana = cfg.diasSemana;
+  const prazo = document.getElementById('prazo-input').value;
+  const ini = hoje();
+
+  // Resumo dos níveis para mostrar no confirm
+  const nTeo = assuntos.filter(a => a.ti === 'T').length;
+  const nRev = assuntos.filter(a => a.ti === 'R').length;
+  const nQue = assuntos.filter(a => a.ti === 'Q').length;
+
+  const setupCfg = { diasSemana, maxMetasDia: maxMetas, inicio: ini, prazo };
+
+  if (!confirm(
+    `Gerar ciclo para ${todosAssuntos.length} assuntos?\n\n` +
+    `📖 Começam por Teoria: ${nTeo}\n` +
+    `🔄 Começam por Revisão: ${nRev}\n` +
+    `✅ Começam por Questões: ${nQue}\n\n` +
+    `${diasSemana.length} dias/semana · até ${maxMetas} metas/dia\n\nIsso vai substituir o ciclo atual.`
+  )) return;
+
+  S.assuntos = todosAssuntos;
+  S.metas = distribuirMetas(todosAssuntos, setupCfg);
+  S.concluidas = {};
+  S.streak = { last: '', n: 0 };
+  S.setup = { ...setupCfg, horas, matsIncluidas: matsSel, niveis: { ...niveisAssuntos }, geradoEm: hoje() };
+  sv();
+
+  alert(`✅ Ciclo gerado! ${S.metas.length} metas distribuídas até ${prazo}.`);
+  goTo('painel');
+}
+
+// ══════════════════════════════════════════════
+// SETUP UI
+// ══════════════════════════════════════════════
+const DIAS_SEMANA = [
+  { nome: 'Dom', letra: 'D', val: 0 },
+  { nome: 'Seg', letra: 'S', val: 1 },
+  { nome: 'Ter', letra: 'T', val: 2 },
+  { nome: 'Qua', letra: 'Q', val: 3 },
+  { nome: 'Qui', letra: 'Q', val: 4 },
+  { nome: 'Sex', letra: 'S', val: 5 },
+  { nome: 'Sáb', letra: 'S', val: 6 },
+];
+
+let diasSelecionados = S.setup ? [...S.setup.diasSemana] : [1, 2, 3, 4, 5]; // Seg-Sex padrão
+
+// niveis: { 'mat|top': 0|1|2 } — 0=nunca vi, 1=já estudei, 2=conheço bem
+let niveisAssuntos = S.setup ? (S.setup.niveis || {}) : {};
+
+function renderSetup() {
+  // Dias
+  const diasGrid = document.getElementById('dias-grid');
+  diasGrid.innerHTML = DIAS_SEMANA.map(d => `
+    <div class="dia-btn ${diasSelecionados.includes(d.val) ? 'on' : ''}" onclick="toggleDia(${d.val})" id="dia-btn-${d.val}">
+      <div class="dia-letra">${d.letra}</div>
+      <div class="dia-nome">${d.nome}</div>
+    </div>`).join('');
+  atualizarDiasInfo();
+
+  // Horas
+  const hAtual = S.setup ? S.setup.horas : 2;
+  document.getElementById('horas-slider').value = hAtual;
+  onHorasChange();
+
+  // Prazo
+  if (S.setup) document.getElementById('prazo-input').value = S.setup.prazo;
+
+  // Matérias
+  const mats = Object.keys(BANCO);
+  const matsAtivas = S.setup ? S.setup.matsIncluidas : mats;
+  document.getElementById('mat-toggles').innerHTML = mats.map(mat => {
+    const qtd = ASSUNTOS_PADRAO.filter(a => a.mat === mat).length;
+    const on = matsAtivas.includes(mat);
+    return `<div class="mat-toggle ${on ? 'on' : ''}" data-mat="${mat}" onclick="toggleMat(this)">
+      <div class="mt-check">${on ? '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>' : ''}</div>
+      <div class="mt-nome">${mat}</div>
+      <div class="mt-qtd">${qtd} tópicos</div>
+    </div>`;
+  }).join('');
+
+  renderNiveis();
+  atualizarPreview();
+}
+
+function renderNiveis() {
+  const matsEl = document.querySelectorAll('.mat-toggle.on');
+  const matsSel = [...matsEl].map(el => el.dataset.mat);
+  const stepNiveis = document.getElementById('step-niveis');
+
+  if (!matsSel.length) { stepNiveis.style.display = 'none'; return; }
+  stepNiveis.style.display = 'block';
+
+  const LABELS = ['Nunca vi', 'Já estudei', 'Conheço bem'];
+  const CORES = ['nv-0', 'nv-1', 'nv-2'];
+
+  document.getElementById('niveis-list').innerHTML = matsSel.map(mat => {
+    const assuntos = ASSUNTOS_PADRAO.filter(a => a.mat === mat);
+    const nv0 = assuntos.filter(a => (niveisAssuntos[mat+'|'+a.top] ?? 0) === 0).length;
+    const nv1 = assuntos.filter(a => (niveisAssuntos[mat+'|'+a.top] ?? 0) === 1).length;
+    const nv2 = assuntos.filter(a => (niveisAssuntos[mat+'|'+a.top] ?? 0) === 2).length;
+    const mid = 'mn_' + mat.replace(/[^a-z0-9]/gi, 'X');
+    return `<div class="mat-nivel-wrap" id="${mid}">
+      <div class="mat-nivel-hdr" onclick="document.getElementById('${mid}').classList.toggle('open')">
+        <div class="mat-nivel-nome">${mat}</div>
+        <div class="nivel-mat-resumo">
+          ${nv0 > 0 ? `<span style="color:var(--blue)">${nv0} nunca vi</span> ` : ''}
+          ${nv1 > 0 ? `<span style="color:var(--amber)">${nv1} já estudei</span> ` : ''}
+          ${nv2 > 0 ? `<span style="color:var(--green)">${nv2} conheço</span>` : ''}
+        </div>
+        <span class="mat-nivel-arr">▾</span>
+      </div>
+      <div class="mat-nivel-body">
+        ${assuntos.map(a => {
+          const key = mat + '|' + a.top;
+          const nvAtual = niveisAssuntos[key] ?? 0;
+          return `<div class="nivel-row">
+            <div class="nivel-top" title="${a.top}">${a.top}</div>
+            <div class="nivel-btns">
+              ${LABELS.map((lbl, i) => `
+                <button class="nivel-btn ${CORES[i]} ${nvAtual === i ? 'on' : ''}"
+                  onclick="setNivel('${key.replace(/'/g,"\\'")}', ${i})">${lbl}</button>
+              `).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setNivel(key, nivel) {
+  niveisAssuntos[key] = nivel;
+  // Atualiza só os botões da linha sem re-renderizar tudo
+  const allBtns = document.querySelectorAll(`[onclick*="${CSS.escape ? CSS.escape(key) : key}"]`);
+  // Fallback: re-renderiza só a lista de níveis
+  renderNiveis();
+  // Mantém abertos os blocos que estavam abertos
+}
+
+function setNivelTodos(nivel) {
+  const matsEl = document.querySelectorAll('.mat-toggle.on');
+  const matsSel = [...matsEl].map(el => el.dataset.mat);
+  ASSUNTOS_PADRAO.filter(a => matsSel.includes(a.mat)).forEach(a => {
+    niveisAssuntos[a.mat + '|' + a.top] = nivel;
+  });
+  renderNiveis();
+}
+
+function toggleDia(val) {
+  const idx = diasSelecionados.indexOf(val);
+  if (idx > -1) diasSelecionados.splice(idx, 1);
+  else diasSelecionados.push(val);
+  const btn = document.getElementById('dia-btn-' + val);
+  btn.classList.toggle('on', diasSelecionados.includes(val));
+  atualizarDiasInfo();
+  atualizarPreview();
+}
+
+function toggleMat(el) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  el.querySelector('.mt-check').innerHTML = on
+    ? '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>'
+    : '';
+  renderNiveis();
+  atualizarPreview();
+}
+
+function atualizarDiasInfo() {
+  const n = diasSelecionados.length;
+  const nomes = DIAS_SEMANA.filter(d => diasSelecionados.includes(d.val)).map(d => d.nome);
+  document.getElementById('dias-info').textContent = n > 0
+    ? `${n} dia${n > 1 ? 's' : ''} selecionado${n > 1 ? 's' : ''}: ${nomes.join(', ')}`
+    : 'Selecione ao menos 1 dia';
+}
+
+function onHorasChange() {
+  const h = parseFloat(document.getElementById('horas-slider').value);
+  document.getElementById('horas-val').textContent = h % 1 === 0 ? h + 'h' : h + 'h';
+  const metas = Math.max(1, Math.floor(h / 0.5));
+  document.getElementById('horas-info').textContent = `Até ${metas} metas por dia (estimativa de 30 min cada)`;
+  atualizarPreview();
+}
+
+function onPrazoChange() { atualizarPreview(); }
+
+function lerSetup() {
+  if (!diasSelecionados.length) {
+    document.getElementById('setup-warn').textContent = '⚠️ Selecione ao menos 1 dia de estudo.';
+    return null;
+  }
+  const prazo = document.getElementById('prazo-input').value;
+  if (!prazo || prazo <= hoje()) {
+    document.getElementById('setup-warn').textContent = '⚠️ Defina uma data de prova válida (futura).';
+    return null;
+  }
+  document.getElementById('setup-warn').textContent = '';
+  return { diasSemana: [...diasSelecionados] };
+}
+
+function atualizarPreview() {
+  const prazo = document.getElementById('prazo-input').value;
+  const horas = parseFloat(document.getElementById('horas-slider').value);
+  const maxMetas = Math.max(1, Math.floor(horas / 0.5));
+  const matsEl = document.querySelectorAll('.mat-toggle.on');
+  const matsSel = [...matsEl].map(el => el.dataset.mat);
+  const totalAssuntos = ASSUNTOS_PADRAO.filter(a => matsSel.includes(a.mat)).length;
+  const prevBox = document.getElementById('setup-preview');
+  const btnGerar = document.getElementById('btn-gerar');
+
+  const valido = diasSelecionados.length > 0 && prazo && prazo > hoje() && matsSel.length > 0;
+  btnGerar.disabled = !valido;
+
+  if (!valido) { prevBox.style.display = 'none'; return; }
+
+  // Estima dias até a prova
+  const diasAteProva = diffDias(prazo, hoje());
+  const semanasAteProva = Math.floor(diasAteProva / 7);
+  const diasEstudoTotal = Math.floor(diasAteProva * diasSelecionados.length / 7);
+  const metasTotaisEstimadas = totalAssuntos * 3.5; // média ~3.5 metas por assunto
+  const metasPorDiaNecessarias = diasEstudoTotal > 0 ? (metasTotaisEstimadas / diasEstudoTotal).toFixed(1) : '—';
+  const carga = parseFloat(metasPorDiaNecessarias) <= maxMetas ? '✅ Tranquilo' : parseFloat(metasPorDiaNecessarias) <= maxMetas * 1.3 ? '⚡ Intenso' : '🔥 Muito puxado';
+
+  prevBox.style.display = 'block';
+  prevBox.innerHTML = `
+    <strong>${totalAssuntos}</strong> assuntos · <strong>${diasSelecionados.length}×/semana</strong> · <strong>${maxMetas} metas/dia</strong><br>
+    Dias úteis de estudo: <strong>${diasEstudoTotal}</strong> · Semanas: <strong>${semanasAteProva}</strong><br>
+    Ritmo estimado: <strong>~${metasPorDiaNecessarias} metas/dia</strong> ${carga}
+  `;
+}
+
+// ══════════════════════════════════════════════
+// TOGGLE / XP / STREAK
+// ══════════════════════════════════════════════
+function toggle(id) {
+  if (isc(id)) {
+    delete S.concluidas[id];
+    const m = S.metas.find(x => x.id === id);
+    if (m) addXP(m.mat, -xpPorTipo(m.tipo, m.dif));
+  } else {
+    S.concluidas[id] = hoje();
+    updStreak();
+    const m = S.metas.find(x => x.id === id);
+    if (m) { addXP(m.mat, xpPorTipo(m.tipo, m.dif)); showXPToast(m.tipo, m.dif); }
+  }
+  sv(); renderAll();
+}
+
+function xpPorTipo(tipo, dif) {
+  const base = { teoria: 15, revisao: 20, questoes: 25 }[tipo] || 10;
+  const mult = { F: 1, M: 1.5, D: 2 }[dif] || 1;
+  return Math.round(base * mult);
+}
+function addXP(mat, pts) {
+  if (!S.xp) S.xp = {};
+  S.xp[mat] = Math.max(0, (S.xp[mat] || 0) + pts);
+}
+function showXPToast(tipo, dif) {
+  const pts = xpPorTipo(tipo, dif);
+  const t = document.createElement('div');
+  t.className = 'xp-toast';
+  t.textContent = `+${pts} XP ⭐`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+function updStreak() {
+  const hj = hoje(), ontem = addDias(hj, -1);
+  if (S.streak.last === hj) return;
+  S.streak.n = S.streak.last === ontem ? S.streak.n + 1 : 1;
+  S.streak.last = hj;
+}
+
+// ══════════════════════════════════════════════
+// PAINEL
+// ══════════════════════════════════════════════
+function renderPainel() {
+  const hj = hoje();
+  const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const now = new Date();
+  document.getElementById('p-data').textContent = `${DIAS[now.getDay()]}, ${now.getDate()} de ${MES[now.getMonth()]}`;
+
+  // Ofensiva
+  const ofEl = document.getElementById('ofensiva-wrap');
+  const diasOf = [];
+  for (let i = 13; i >= 0; i--) diasOf.push(addDias(hj, -i));
+  const diasComMeta = new Set(Object.values(S.concluidas));
+  ofEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+      <div style="font-family:'Syne',sans-serif;font-size:.82rem;font-weight:800;color:var(--accent2)">🔥 Ofensiva — ${S.streak.n || 0} dias seguidos</div>
+    </div>
+    <div class="ofensiva-bar">
+      ${diasOf.map(d => {
+        const isHj = d === hj, ok = diasComMeta.has(d);
+        const dt = new Date(d + 'T12:00:00');
+        return `<div class="od ${isHj ? 'hoje' : ok ? 'ok' : 'vazio'}">
+          <span class="od-n">${dt.getDate()}</span>
+          <span class="od-f">${ok || isHj ? '🔥' : '·'}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  const mHj = S.metas.filter(m => m.data === hj);
+  const tot = S.metas.length, conc = Object.keys(S.concluidas).length;
+  const pend = mHj.filter(m => !isc(m.id)).length;
+  const atr = S.metas.filter(m => m.data < hj && !isc(m.id)).length;
+
+  document.getElementById('p-stats').innerHTML = `
+    <div class="stat"><div class="stat-n" style="color:var(--accent2)">${tot}</div><div class="stat-l">Total metas</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${conc}</div><div class="stat-l">Concluídas</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--amber)">${pend}</div><div class="stat-l">Hoje</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--accent)">${atr}</div><div class="stat-l">Atrasadas</div></div>`;
+
+  document.getElementById('p-prog-l').textContent = `${conc}/${tot}`;
+  document.getElementById('p-prog-b').style.width = tot ? `${Math.round(conc / tot * 100)}%` : '0%';
+
+  const hjOK = mHj.filter(m => isc(m.id)).length;
+  document.getElementById('p-hj-badge').innerHTML = `
+    <div style="color:var(--muted);font-size:.64rem">Hoje</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;color:${hjOK >= mHj.length && mHj.length ? 'var(--green)' : 'var(--accent2)'}">${hjOK}/${mHj.length}</div>`;
+
+  const urg = S.metas.filter(m => !isc(m.id) && m.data <= hj && diffDias(hj, m.data) >= 5 && m.tipo !== 'questoes');
+  document.getElementById('urg-w').innerHTML = urg.length
+    ? `<div class="urg-banner"><span style="font-size:1.1rem">🔔</span><span style="font-size:.77rem;flex:1"><strong style="color:var(--accent)">${urg.length} revisão${urg.length > 1 ? 'ões' : ''} urgente${urg.length > 1 ? 's' : ''}</strong> — atrasada${urg.length > 1 ? 's' : ''} há +5 dias</span></div>`
+    : '';
+
+  // Sem ciclo gerado
+  if (!S.metas.length) {
+    document.getElementById('p-hoje').innerHTML = `<div class="empty"><div style="font-size:2rem">🎯</div><div style="margin-top:8px">Nenhum ciclo gerado ainda</div><div style="font-size:.74rem;margin-top:6px"><a href="#" onclick="goTo('setup');return false" style="color:var(--accent2)">Ir para Configuração →</a></div></div>`;
+    document.getElementById('p-atras').innerHTML = '';
+    return;
+  }
+
+  document.getElementById('p-hoje').innerHTML = mHj.length
+    ? mHj.map(m => mCard(m)).join('')
+    : `<div class="empty"><div style="font-size:1.6rem">🎉</div><div>Nenhuma meta para hoje!</div></div>`;
+
+  const atrs = S.metas.filter(m => m.data < hj && !isc(m.id));
+  document.getElementById('p-atras').innerHTML = atrs.length
+    ? atrs.slice(0, 10).map(m => mCard(m, true)).join('')
+    : `<div class="empty"><span style="font-size:1.3rem">✅</span><div>Sem atrasadas!</div></div>`;
+}
+
+function mCard(m, showDt = false) {
+  const done = isc(m.id);
+  const dias = !done && m.data < hoje() ? diffDias(hoje(), m.data) : 0;
+  const tl = { teoria: '📖 Teoria', revisao: '🔄 Revisão', questoes: '✅ Questões' };
+  const tc = { teoria: 'b-teoria', revisao: 'b-revisao', questoes: 'b-questoes' };
+  const xpts = xpPorTipo(m.tipo, m.dif || 'M');
+  return `<div class="mc ${done ? 'done' : ''} ${dias > 0 ? 'atrasada' : ''}" onclick="toggle('${m.id}')">
+    <span class="badge ${tc[m.tipo]}">${tl[m.tipo]}${m.reforco ? ' ⟳' : ''}</span>
+    <div class="mc-body">
+      <div class="mc-mat">${m.mat}</div>
+      <div class="mc-top">${m.top}</div>
+      ${showDt || dias > 0 ? `<div class="mc-sub">${dias > 0 ? `⚠️ ${dias}d atraso` : `📅 ${m.data}`}</div>` : ''}
+    </div>
+    ${!done ? `<span class="badge b-accent" style="font-size:.6rem">+${xpts}xp</span>` : ''}
+    <div class="chk"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// AGENDA
+// ══════════════════════════════════════════════
+function wkOff(n) { S.wkOffset = (S.wkOffset || 0) + n; sv(); renderAgenda(); }
+
+function renderAgenda() {
+  const off = S.wkOffset || 0;
+  const now = new Date(), dow = now.getDay();
+  const seg = new Date(now); seg.setDate(seg.getDate() - ((dow === 0 ? 7 : dow) - 1) + off * 7);
+  const fim = new Date(seg); fim.setDate(fim.getDate() + 6);
+  const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  document.getElementById('wk-lbl').textContent = `${seg.getDate()} ${MES[seg.getMonth()]} — ${fim.getDate()} ${MES[fim.getMonth()]} ${fim.getFullYear()}`;
+
+  const hj = hoje();
+  const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const diasLivres = S.setup ? [] : [];
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(seg); d.setDate(d.getDate() + i);
+    const ds = fd(d);
+    const dow2 = d.getDay();
+    const livre = S.setup && !S.setup.diasSemana.includes(dow2);
+    const mDia = S.metas.filter(m => m.data === ds).sort((a, b) =>
+      ({ teoria: 0, revisao: 1, questoes: 2 }[a.tipo] || 0) - ({ teoria: 0, revisao: 1, questoes: 2 }[b.tipo] || 0));
+    html += `<div class="dc ${ds === hj ? 'hoje-col' : ''} ${livre ? 'dia-livre' : ''}">
+      <div class="dc-h"><div class="dc-dn">${DIAS[i]}</div><div class="dc-dd">${d.getDate()}</div></div>
+      <div class="dc-b">
+        ${mDia.slice(0, 6).map(m => {
+          const cls = m.tipo === 'teoria' ? 't' : m.tipo === 'revisao' ? 'r' : 'q';
+          const sh = m.top.length > 14 ? m.top.slice(0, 14) + '…' : m.top;
+          return `<div class="ai ${cls} ${isc(m.id) ? 'done' : ''}" onclick="toggle('${m.id}')" title="${m.top}">${sh}</div>`;
+        }).join('')}
+        ${mDia.length > 6 ? `<div style="font-size:.5rem;color:var(--muted);padding:1px 3px">+${mDia.length - 6}</div>` : ''}
+        ${!mDia.length ? `<div style="font-size:.5rem;color:var(--border2);padding:2px 3px">${livre ? 'livre' : '—'}</div>` : ''}
+      </div>
+    </div>`;
+  }
+  document.getElementById('ag').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// VERTICAL
+// ══════════════════════════════════════════════
+function forca(aid) {
+  const tot = S.metas.filter(m => m.aid === aid).length;
+  if (!tot) return 0;
+  const conc = S.metas.filter(m => m.aid === aid && isc(m.id)).length;
+  const rev = S.metas.filter(m => m.aid === aid && m.tipo === 'revisao' && isc(m.id)).length;
+  const pct = conc / tot;
+  if (pct >= .8 || rev >= 2) return 3;
+  if (pct >= .4 || rev >= 1) return 2;
+  if (pct > 0) return 1;
+  return 0;
+}
+
+function renderVertical() {
+  const mats = [...new Set(S.assuntos.map(a => a.mat))];
+  const dom = S.assuntos.filter(a => forca(a.id) === 3).length;
+  const tot = S.assuntos.length || 1;
+  document.getElementById('vt-n').innerHTML = `${dom} <span style="font-size:.72rem;color:var(--muted);font-weight:400">de ${S.assuntos.length}</span>`;
+  document.getElementById('vt-b').style.width = `${Math.round(dom / tot * 100)}%`;
+  document.getElementById('vt-p').textContent = `${Math.round(dom / tot * 100)}%`;
+
+  if (!S.assuntos.length) {
+    document.getElementById('vt-list').innerHTML = `<div class="empty">Gere o ciclo primeiro em 🎯 Configuração</div>`;
+    return;
+  }
+
+  let html = '';
+  mats.forEach(mat => {
+    const ass = S.assuntos.filter(a => a.mat === mat);
+    const c = ass.filter(a => forca(a.id) >= 2).length;
+    const p = Math.round(c / ass.length * 100);
+    const cor = p < 30 ? 'var(--accent)' : p < 70 ? 'var(--amber)' : 'var(--green)';
+    const mid = 'mb_' + mat.replace(/[^a-z0-9]/gi, 'X');
+    html += `<div class="mat-blk" id="${mid}">
+      <div class="mat-hdr" onclick="this.closest('.mat-blk').classList.toggle('open')">
+        <div class="mat-nome">${mat}</div>
+        <div style="font-size:.68rem;color:var(--muted)">${c}/${ass.length}</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:${cor}">${p}%</div>
+        <span class="mat-arr">▾</span>
+      </div>
+      <div class="mat-tops">
+        ${ass.map(a => {
+          const f = forca(a.id);
+          const mA = S.metas.filter(m => m.aid === a.id);
+          const tT = mA.some(m => m.tipo === 'teoria' && isc(m.id));
+          const tR = mA.some(m => m.tipo === 'revisao' && isc(m.id));
+          const tQ = mA.some(m => m.tipo === 'questoes' && isc(m.id));
+          const prox = mA.filter(m => !isc(m.id)).sort((x, y) => x.data.localeCompare(y.data))[0];
+          return `<div class="tr">
+            <div class="fd f${f}"></div>
+            <div class="tr-nome">${a.top}</div>
+            <div class="tdots">
+              <div class="td ${tT ? 't-on' : 'off'}">T</div>
+              <div class="td ${tR ? 'r-on' : 'off'}">R</div>
+              <div class="td ${tQ ? 'q-on' : 'off'}">Q</div>
+            </div>
+            ${prox ? `<span style="font-size:.6rem;color:var(--muted)">↑${prox.data.slice(5)}</span>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('vt-list').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// CONFIG (gerenciar assuntos)
+// ══════════════════════════════════════════════
+function renderConfig() {
+  const mats = [...new Set(S.assuntos.map(a => a.mat))];
+  if (!S.assuntos.length) {
+    document.getElementById('cfg-list').innerHTML = `<div class="empty">Nenhum assunto cadastrado.<br>Gere o ciclo em 🎯 Configuração ou adicione manualmente.</div>`;
+    return;
+  }
+  let html = '';
+  mats.forEach(mat => {
+    html += `<div style="font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin:12px 0 5px">${mat}</div>`;
+    S.assuntos.filter(a => a.mat === mat).forEach(a => {
+      const f = forca(a.id);
+      const fl = ['Não iniciado', 'Iniciado', 'Em andamento', 'Dominado'];
+      const fc = ['var(--muted)', 'var(--accent2)', 'var(--amber)', 'var(--green)'];
+      const tl = { T: '📖', R: '🔄', Q: '✅' };
+      html += `<div class="card-sm" style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div class="fd f${f}"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.82rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.top}</div>
+          <div style="font-size:.63rem;color:var(--muted);margin-top:2px">${tl[a.ti] || ''} · ${a.dif === 'F' ? 'Fácil' : a.dif === 'D' ? 'Difícil' : 'Médio'}</div>
+        </div>
+        <span style="font-size:.65rem;color:${fc[f]}">${fl[f]}</span>
+        <button onclick="delA('${a.id}')" style="background:none;border:1px solid rgba(230,58,58,.3);color:var(--accent);cursor:pointer;font-size:.68rem;padding:2px 6px;border-radius:5px">✕</button>
+      </div>`;
+    });
+  });
+  document.getElementById('cfg-list').innerHTML = html;
+}
+
+function delA(id) {
+  if (!confirm('Remover este assunto e suas metas?')) return;
+  S.assuntos = S.assuntos.filter(a => a.id !== id);
+  S.metas = S.metas.filter(m => m.aid !== id);
+  Object.keys(S.concluidas).filter(k => k.startsWith(id + '_')).forEach(k => delete S.concluidas[k]);
+  sv(); renderAll();
+}
+
+// ══════════════════════════════════════════════
+// MODAL — adicionar assunto manual
+// ══════════════════════════════════════════════
+let mTipo = 'T', mDif = 'M', editId = null;
+
+function openModal(aid) {
+  editId = aid || null; mTipo = 'T'; mDif = 'M';
+  document.getElementById('m-mat').value = '';
+  document.getElementById('m-mat-n').style.display = 'none';
+  document.getElementById('m-top').value = '';
+  document.getElementById('m-tsl').style.display = 'none';
+  document.getElementById('m-data').value = hoje();
+  document.getElementById('m-title').textContent = aid ? 'Editar Assunto' : 'Novo Assunto';
+  document.getElementById('ciclo-prev').style.display = 'none';
+  selT('T'); selD('M');
+  if (aid) {
+    const a = S.assuntos.find(x => x.id === aid);
+    if (a) { document.getElementById('m-mat').value = a.mat; document.getElementById('m-top').value = a.top; selT(a.ti); selD(a.dif); }
+  }
+  document.getElementById('ov').classList.add('on');
+}
+function closeModal() { document.getElementById('ov').classList.remove('on'); }
+function closeOv(e) { if (e.target === document.getElementById('ov')) closeModal(); }
+function onMat() {
+  const v = document.getElementById('m-mat').value;
+  document.getElementById('m-mat-n').style.display = v === '__nova__' ? 'block' : 'none';
+  filterT(); updPrev();
+}
+function filterT() {
+  const mat = document.getElementById('m-mat').value;
+  const q = document.getElementById('m-top').value.toLowerCase().trim();
+  const pool = mat && BANCO[mat] ? BANCO[mat] : Object.values(BANCO).flat();
+  const filt = q ? pool.filter(t => t.toLowerCase().includes(q)) : pool;
+  const el = document.getElementById('m-tsl');
+  if (!filt.length) { el.style.display = 'none'; return; }
+  el.innerHTML = filt.slice(0, 10).map(t => `<div class="tsi" onclick="pickT('${t.replace(/'/g, "\\'")}')">${t}</div>`).join('');
+  el.style.display = 'block';
+}
+function pickT(t) { document.getElementById('m-top').value = t; document.getElementById('m-tsl').style.display = 'none'; updPrev(); }
+function selT(t) {
+  mTipo = t;
+  document.querySelectorAll('.tb').forEach((b, i) => {
+    b.className = 'tb';
+    if ((t === 'T' && i === 0) || (t === 'R' && i === 1) || (t === 'Q' && i === 2)) b.className = 'tb s' + t;
+  });
+  updPrev();
+}
+function selD(d) {
+  mDif = d;
+  document.querySelectorAll('.db2').forEach((b, i) => {
+    b.className = 'db2';
+    if ((d === 'F' && i === 0) || (d === 'M' && i === 1) || (d === 'D' && i === 2)) b.className = 'db2 s' + d;
+  });
+  updPrev();
+}
+function updPrev() {
+  const di = document.getElementById('m-data').value;
+  const top = document.getElementById('m-top').value.trim();
+  const el = document.getElementById('ciclo-prev');
+  if (!di || !top) { el.style.display = 'none'; return; }
+  const v = intervalos(mDif);
+  const lbl = { teoria: '📖 Teoria', revisao: '🔄 Revisão', questoes: '✅ Questões' };
+  let steps = [];
+  if (mTipo === 'T') steps = [['teoria', di], ['revisao', addDias(di, v.r1)], ['questoes', addDias(di, v.r1 + v.q1)], ['revisao', addDias(di, v.r1 + v.q1 + v.r2)]];
+  else if (mTipo === 'R') steps = [['revisao', di], ['questoes', addDias(di, 4)], ['revisao', addDias(di, 4 + v.r2)]];
+  else steps = [['questoes', di], ['revisao', addDias(di, 5)]];
+  document.getElementById('ciclo-steps').innerHTML = steps.map((s, i) =>
+    `<div class="ciclo-step"><span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.74rem;color:var(--muted);width:14px">${i + 1}.</span><span style="font-size:.76rem;flex:1">${lbl[s[0]]}</span><span style="font-size:.68rem;color:var(--muted)">📅 ${s[1]}</span></div>`
+  ).join('');
+  el.style.display = 'block';
+}
+
+function salvar() {
+  let mat = document.getElementById('m-mat').value;
+  if (mat === '__nova__') mat = document.getElementById('m-mat-n').value.trim();
+  const top = document.getElementById('m-top').value.trim();
+  const di = document.getElementById('m-data').value;
+  if (!mat || !top || !di) { alert('Preencha todos os campos!'); return; }
+
+  if (editId) {
+    const idx = S.assuntos.findIndex(x => x.id === editId);
+    if (idx > -1) S.assuntos[idx] = { ...S.assuntos[idx], mat, top, ti: mTipo, dif: mDif };
+  } else {
+    const id = 'x' + Date.now();
+    S.assuntos.push({ id, mat, top, ti: mTipo, dif: mDif });
+    // Gera metas para esse assunto manual com a config atual
+    if (S.setup) {
+      const novas = distribuirMetas([{ id, mat, top, ti: mTipo, dif: mDif }], {
+        ...S.setup,
+        inicio: di,
+      });
+      S.metas.push(...novas);
+    }
+  }
+  sv(); closeModal(); renderAll();
+}
+
+// ══════════════════════════════════════════════
+// BACKUP / RESET
+// ══════════════════════════════════════════════
+function exportar() {
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cfo_bombeiros_${hoje()}.json`;
+  a.click();
+}
+function importar(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      S = JSON.parse(evt.target.result);
+      sv(); renderAll();
+      alert('✅ Dados importados!');
+    } catch { alert('Erro ao importar arquivo.'); }
+  };
+  reader.readAsText(file);
+}
+function resetarTudo() {
+  if (!confirm('Isso vai apagar TODO o progresso. Tem certeza?')) return;
+  S = estadoInicial();
+  sv(); renderAll();
+  goTo('setup');
+}
+
+// ══════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
+  const sc = document.getElementById('sc-' + id);
+  if (sc) sc.classList.add('on');
+  const tab = document.querySelector(`[data-s="${id}"]`);
+  if (tab) tab.classList.add('on');
+  ({ painel: renderPainel, agenda: renderAgenda, vertical: renderVertical, config: renderConfig, setup: renderSetup }[id] || (() => {}))();
+}
+
+function renderAll() {
+  renderPainel();
+  const id = document.querySelector('.screen.on')?.id?.replace('sc-', '');
+  ({ agenda: renderAgenda, vertical: renderVertical, config: renderConfig, setup: renderSetup }[id] || (() => {}))();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+document.getElementById('m-data').addEventListener('input', updPrev);
+
+// Se nunca configurou, destaca o setup
+if (!S.setup) {
+  const tab = document.querySelector('[data-s="setup"]');
+  if (tab) {
+    const badge = document.createElement('span');
+    badge.className = 'nav-setup-badge';
+    badge.textContent = 'NOVO';
+    tab.appendChild(badge);
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>
