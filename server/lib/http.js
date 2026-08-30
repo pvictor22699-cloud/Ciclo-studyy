@@ -27,6 +27,30 @@ function sendError(res, err) {
 }
 
 function readJsonBody(req) {
+  // Em serverless (Vercel), o runtime já leu o stream e deixou o corpo pronto
+  // em req.body. Nesse caso não há mais nada pra ouvir: o 'end' viria vazio e a
+  // requisição chegaria ao router sem os campos.
+  if (req.body !== undefined && req.body !== null) {
+    if (typeof req.body === 'string') {
+      if (!req.body) return Promise.resolve({});
+      try {
+        return Promise.resolve(JSON.parse(req.body));
+      } catch {
+        return Promise.reject(new HttpError(400, 'bad_json', 'JSON inválido'));
+      }
+    }
+    if (Buffer.isBuffer(req.body)) {
+      const texto = req.body.toString('utf8');
+      if (!texto) return Promise.resolve({});
+      try {
+        return Promise.resolve(JSON.parse(texto));
+      } catch {
+        return Promise.reject(new HttpError(400, 'bad_json', 'JSON inválido'));
+      }
+    }
+    if (typeof req.body === 'object') return Promise.resolve(req.body);
+  }
+
   return new Promise((resolve, reject) => {
     let size = 0;
     const chunks = [];
