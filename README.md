@@ -170,12 +170,18 @@ O `index.html` da raiz é o app antigo do CFO Bombeiros, intocado.
 
 - `outputDirectory: public` — o front sai de `public/`, **não** da raiz (senão a
   Vercel serviria o `index.html` antigo do CFO Bombeiros).
-- `api/[...path].js` — rota catch-all: atende todo `/api/*` com o mesmo handler
-  do servidor local, sem rewrite nenhum.
+- `rewrites: /api/(.*) → /api?__path=$1` — todo `/api/*` entra por
+  `api/index.js`, que remonta o caminho original a partir do `__path` e entrega
+  ao mesmo router do servidor local. Nome de arquivo literal, sem colchete: uma
+  rota catch-all `api/[...path].js` deixava as rotas de dois segmentos
+  (`/api/auth/login`, `/api/professor/students`) caírem no 404 da Vercel.
 - `includeFiles: server/engine/*.js` — obrigatório. O `loader.js` lê o
   `engine.js` com `fs.readFileSync` em runtime; sem isso a Vercel não empacota o
-  arquivo e a função quebra com ENOENT. `tests/vercel-adapter.test.js` segura
-  essa regressão.
+  arquivo e a função quebra com ENOENT.
+
+`tests/vercel-adapter.test.js` simula o caminho de produção — o rewrite, as
+rotas de vários segmentos e o corpo já lido pelo runtime (`req.body`) — e segura
+essas regressões antes do deploy.
 
 As variáveis de ambiente **não** vêm do `.env` (ele é gitignored e nunca sai da
 sua máquina): recadastre `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
