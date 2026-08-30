@@ -28,7 +28,7 @@ const { normalizeSeed } = require('./engine/loader');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
-function createApp({ repo, auth, allowTodayOverride = false, staticDir = PUBLIC_DIR }) {
+function createApp({ repo, auth, allowTodayOverride = false, staticDir = PUBLIC_DIR, configProblems = [] }) {
   const service = createService({ repo, allowTodayOverride });
   const router = createRouter();
 
@@ -72,7 +72,14 @@ function createApp({ repo, auth, allowTodayOverride = false, staticDir = PUBLIC_
 
   /* ---------------------------- rotas ----------------------------- */
 
-  router.get('/api/health', async () => ({ ok: true, repo: repo.kind, auth: auth.kind }));
+  // /api/health é o endpoint de diagnóstico: além de dizer que subiu, aponta
+  // variável de ambiente malformada (chave copiada com máscara, por exemplo).
+  router.get('/api/health', async () => ({
+    ok: configProblems.length === 0,
+    repo: repo.kind,
+    auth: auth.kind,
+    ...(configProblems.length ? { problems: configProblems } : {}),
+  }));
 
   router.post('/api/auth/login', async ({ body }) => {
     const { email, password } = body;
@@ -250,6 +257,15 @@ function createApp({ repo, auth, allowTodayOverride = false, staticDir = PUBLIC_
 
     const route = router.match(req.method, pathname);
     if (route) {
+      // config quebrada: falha com a causa em vez de deixar o fetch estourar
+      // um TypeError e virar "erro interno" no log.
+      if (configProblems.length && pathname !== '/api/health') {
+        return sendJson(res, 503, {
+          error: 'config_invalida',
+          message: 'a API está mal configurada — veja GET /api/health',
+          problems: configProblems,
+        });
+      }
       try {
         const body = ['POST', 'PATCH', 'PUT'].includes(req.method) ? await readJsonBody(req) : {};
         const result = await route.handler({ req, res, body, params: route.params, query: url.searchParams });

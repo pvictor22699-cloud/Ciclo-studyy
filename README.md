@@ -177,6 +177,11 @@ O `index.html` da raiz é o app antigo do CFO Bombeiros, intocado.
   arquivo e a função quebra com ENOENT. `tests/vercel-adapter.test.js` segura
   essa regressão.
 
+`GET /api/health` é o diagnóstico: `{"ok":true,...}` quer dizer config sã;
+`{"ok":false,"problems":[...]}` nomeia a variável errada (chave copiada com a
+máscara da tela, espaço nas pontas, valor vazio). Com config quebrada as demais
+rotas respondem 503 com a mesma lista, em vez de estourar lá dentro do `fetch`.
+
 As variáveis de ambiente **não** vêm do `.env` (ele é gitignored e nunca sai da
 sua máquina): recadastre `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
 `SUPABASE_SERVICE_ROLE_KEY`, `BACKEND=supabase` e `ALLOW_TODAY_OVERRIDE=false`

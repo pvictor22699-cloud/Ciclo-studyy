@@ -1,4 +1,5 @@
 'use strict';
+const { problemaNaChave } = require('./lib/header-safe');
 
 function loadConfig(env = process.env) {
   const hasSupabase = !!(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY && env.SUPABASE_ANON_KEY);
@@ -8,8 +9,23 @@ function loadConfig(env = process.env) {
       'BACKEND=supabase exige SUPABASE_URL, SUPABASE_ANON_KEY e SUPABASE_SERVICE_ROLE_KEY',
     );
   }
+  // Chaves com máscara/acento viram TypeError cru lá no fetch. Detectamos aqui
+  // pra dizer QUAL variável está errada (e /api/health mostra isso).
+  const problems = [];
+  if (backend === 'supabase') {
+    for (const [nome, valor] of [
+      ['SUPABASE_URL', env.SUPABASE_URL],
+      ['SUPABASE_ANON_KEY', env.SUPABASE_ANON_KEY],
+      ['SUPABASE_SERVICE_ROLE_KEY', env.SUPABASE_SERVICE_ROLE_KEY],
+    ]) {
+      const problema = problemaNaChave(nome, valor);
+      if (problema) problems.push(problema);
+    }
+  }
+
   return {
     backend,
+    problems,
     port: Number(env.PORT || 3000),
     supabase: {
       url: env.SUPABASE_URL,
