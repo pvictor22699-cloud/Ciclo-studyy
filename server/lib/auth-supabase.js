@@ -5,6 +5,7 @@
  * por access_token + refresh_token e devolvemos ao cliente.
  */
 const { HttpError, unauthorized } = require('./errors');
+const { ehSeguro } = require('./header-safe');
 
 function createSupabaseAuth({ url, anonKey, serviceKey }) {
   const base = String(url).replace(/\/$/, '');
@@ -72,6 +73,9 @@ function createSupabaseAuth({ url, anonKey, serviceKey }) {
 
     async verify(accessToken) {
       if (!accessToken) throw unauthorized();
+      // o token vem do cliente e vai pro header Authorization: se tiver
+      // caractere fora do ASCII, é token inválido — 401, nunca 500.
+      if (!ehSeguro(accessToken)) throw unauthorized('token inválido');
       const hit = cache.get(accessToken);
       if (hit && hit.exp > Date.now()) return hit.user;
       let data;

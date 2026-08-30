@@ -46,7 +46,12 @@ async function buildApp(env = process.env) {
   const config = loadConfig(env);
   const { repo, auth } = buildBackend(config);
   if (config.backend === 'memory') await seedDemo({ repo, auth, config });
-  const app = createApp({ repo, auth, allowTodayOverride: config.allowTodayOverride });
+  const app = createApp({
+    repo,
+    auth,
+    allowTodayOverride: config.allowTodayOverride,
+    configProblems: config.problems || [],
+  });
   app.config = config;
   return app;
 }
