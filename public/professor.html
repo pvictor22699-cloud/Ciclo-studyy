@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0c0c0e">
+<title>Painel do Professor — Ciclo Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="login-title">Painel do <em style="color:var(--accent);font-style:normal">Professor</em></div>
+    <div class="login-sub">Acompanhe o ciclo de cada aluno.</div>
+    <div id="loginMsg" class="msg erro"></div>
+    <form id="loginForm">
+      <div class="fg">
+        <label class="fl" for="email">E-mail</label>
+        <input class="fi" id="email" type="email" autocomplete="username" required>
+      </div>
+      <div class="fg">
+        <label class="fl" for="senha">Senha</label>
+        <input class="fi" id="senha" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="bp bw" id="btnEntrar" type="submit">Entrar</button>
+    </form>
+    <div class="login-sub" style="margin:14px 0 0">É aluno? <a href="/">Abrir o app</a></div>
+  </div>
+</div>
+
+<!-- ── PAINEL ── -->
+<div id="app" hidden>
+  <nav>
+    <div class="brand">Ciclo <em>Professor</em></div>
+    <div class="nav-tabs">
+      <button class="ntab on" data-tela="alunos">Alunos</button>
+    </div>
+    <div class="nav-user"><span id="navNome"></span><button class="bs" id="btnSair">Sair</button></div>
+  </nav>
+
+  <!-- LISTA -->
+  <section class="screen on" id="tela-alunos">
+    <div class="pg-title">Alunos</div>
+    <div class="pg-sub" id="alunosSub">carregando…</div>
+    <div class="g3" id="alunosStats"></div>
+    <div class="sec-label">Acompanhando</div>
+    <div id="alunosLista"><div class="skel"></div><div class="skel"></div></div>
+    <div class="sec-label">Novo aluno</div>
+    <div class="card">
+      <div id="novoMsg" class="msg erro"></div>
+      <div class="g2">
+        <div class="fg"><label class="fl" for="nAluno">Nome</label><input class="fi" id="nAluno" placeholder="Kaleu"></div>
+        <div class="fg"><label class="fl" for="nEmail">E-mail (login)</label><input class="fi" id="nEmail" type="email" placeholder="aluno@exemplo.com"></div>
+      </div>
+      <div class="fg"><label class="fl" for="nSenha">Senha inicial</label><input class="fi" id="nSenha" type="password" placeholder="mínimo 8 caracteres"></div>
+      <div class="pg-sub">O ciclo nasce com a lista de matérias e tópicos padrão. Pra usar outra lista, mande o campo <code>seed</code> pela API.</div>
+      <button class="bp" id="btnCriar">Criar aluno</button>
+    </div>
+  </section>
+
+  <!-- DETALHE -->
+  <section class="screen" id="tela-detalhe">
+    <button class="bs" id="btnVoltar" style="margin-bottom:12px">← Voltar</button>
+    <div class="pg-title" id="detNome"></div>
+    <div class="pg-sub" id="detSub"></div>
+    <div class="card" id="detGeral"></div>
+    <div class="sec-label">Por matéria</div>
+    <div id="detMaterias"></div>
+    <div class="sec-label">O dia de hoje</div>
+    <div class="mc-list" id="detHoje"></div>
+    <div class="sec-label">Tópicos</div>
+    <div id="detTopicos"></div>
+    <div class="sec-label">Últimas conclusões</div>
+    <div class="card" id="detRecentes"></div>
+  </section>
+</div>
+
+<!-- MODAL: pedir estudo extra pro aluno -->
+<div class="overlay" id="modalExtra">
+  <div class="modal">
+    <h3>Pedir Estudo Extra pro aluno</h3>
+    <div class="pg-sub" id="extraTopico"></div>
+    <div id="extraMsg" class="msg erro"></div>
+    <div class="fg">
+      <label class="fl" for="extraMin">Minutos (máx. 120)</label>
+      <input class="fi" id="extraMin" type="number" min="5" max="120" step="5" value="60">
+    </div>
+    <div class="pg-sub">Cai 2 dias depois do Estudo 2 do tópico, e a Revisão Ativa é empurrada pra depois dele.</div>
+    <div class="row-end">
+      <button class="bs" data-fechar>Cancelar</button>
+      <button class="bp" id="btnConfirmarExtra">Agendar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/view-model.js"></script>
+<script src="/js/api.js"></script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = VM.escapeHtml;
+
+let alunos = [];
+let detalhe = null;
+let topicoExtra = null;
+
+function toast(texto, erro) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (erro ? ' erro' : '');
+  el.textContent = texto;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+function msg(el, texto, tipo) {
+  el.className = `msg ${tipo || 'erro'}` + (texto ? ' on' : '');
+  el.textContent = texto || '';
+}
+function tela(nome) {
+  $$('.screen').forEach((s) => s.classList.toggle('on', s.id === `tela-${nome}`));
+}
+
+/* ── login ── */
+$('#loginForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  $('#btnEntrar').disabled = true;
+  msg($('#loginMsg'), '');
+  try {
+    const s = await API.login($('#email').value.trim(), $('#senha').value);
+    if (s.user.role !== 'professor') { msg($('#loginMsg'), 'Esta conta não é de professor.'); await API.logout(); return; }
+    await iniciar();
+  } catch (err) {
+    msg($('#loginMsg'), err.message);
+  } finally {
+    $('#btnEntrar').disabled = false;
+  }
+});
+$('#btnSair').addEventListener('click', async () => { await API.logout(); location.reload(); });
+$('#btnVoltar').addEventListener('click', () => tela('alunos'));
+
+/* ── lista de alunos ── */
+async function carregarAlunos() {
+  const res = await API.alunos();
+  alunos = res.students;
+  renderAlunos();
+}
+
+function renderAlunos() {
+  $('#alunosSub').textContent = alunos.length
+    ? `${alunos.length} aluno(s) acompanhado(s)`
+    : 'Nenhum aluno vinculado ainda.';
+
+  const media = alunos.length
+    ? Math.round((alunos.reduce((a, s) => a + s.progress.percent, 0) / alunos.length) * 10) / 10
+    : 0;
+  const parados = alunos.filter((a) => VM.statusAluno(a).tom === 'alerta').length;
+  const horas = alunos.reduce((a, s) => a + s.progress.hours, 0);
+  $('#alunosStats').innerHTML = [
+    ['Progresso médio', `${media}%`],
+    ['Precisam de atenção', String(parados)],
+    ['Horas somadas', VM.fmtHoras(horas)],
+  ].map(([l, n]) => `<div class="stat"><div class="stat-n">${esc(n)}</div><div class="stat-l">${esc(l)}</div></div>`).join('');
+
+  $('#alunosLista').innerHTML = alunos.length
+    ? alunos.map((a) => {
+        const st = VM.statusAluno(a);
+        const cor = VM.corProgresso(a.progress.percent);
+        return `<button class="al" data-id="${esc(a.id)}">
+          <div class="al-top">
+            <span class="al-nome">${esc(a.name)}</span>
+            <span class="badge ${st.tom === 'alerta' ? 'b-accent' : st.tom === 'ok' ? 'b-questoes' : 'b-revisao'}">${esc(st.texto)}</span>
+            <span class="al-pct" style="color:${cor}">${a.progress.percent}%</span>
+          </div>
+          <div class="pbar-bg h6"><div class="pbar" style="width:${a.progress.percent}%;background:${cor}"></div></div>
+          <div class="al-meta">
+            <span>${a.progress.done}/${a.progress.total} etapas</span>
+            <span>${VM.fmtHoras(a.progress.hours)} estudadas</span>
+            <span>ofensiva ${a.streak.count}d</span>
+            <span>hoje: ${a.today.total} meta(s)${a.today.hadOverdue ? ' · com atraso' : ''}</span>
+          </div>
+        </button>`;
+      }).join('')
+    : '<div class="empty">Cadastre um aluno abaixo pra começar a acompanhar.</div>';
+
+  $$('#alunosLista .al').forEach((b) => b.addEventListener('click', () => abrirAluno(b.dataset.id)));
+}
+
+/* ── detalhe do aluno ── */
+async function abrirAluno(id) {
+  detalhe = await API.aluno(id);
+  const p = detalhe.progress;
+  $('#detNome').textContent = detalhe.studentName;
+  $('#detSub').textContent = `Começou em ${VM.fmtBR(detalhe.startDate)} · limite de ${VM.fmtHoras(detalhe.config.limit)}/dia · ofensiva de ${detalhe.streak.count} dia(s)`;
+  $('#detGeral').innerHTML = `
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+      <div style="font-family:'Syne';font-size:2rem;font-weight:800;color:${VM.corProgresso(p.percent)}">${p.percent}%</div>
+      <div class="pg-sub" style="margin:0">${p.done} de ${p.total} etapas · ${VM.fmtHoras(p.hours)} · ${p.periodicas} periódicas</div>
+    </div>
+    <div class="pbar-bg h8"><div class="pbar" style="width:${p.percent}%;background:${VM.corProgresso(p.percent)}"></div></div>`;
+
+  $('#detMaterias').innerHTML = p.bySubj.map((s) => `
+    <div class="prog-materia">
+      <i class="mc-dot" style="background:${esc(s.color)}"></i>
+      <span class="pm-nome">${esc(s.name)}${s.solido ? ' · <span class="badge b-muted">sólido</span>' : ''}</span>
+      <span style="flex:2"><span class="pbar-bg h5" style="display:block"><span class="pbar" style="display:block;width:${s.percent}%;background:${esc(s.color)}"></span></span></span>
+      <span class="pm-pct">${s.percent}%</span>
+    </div>`).join('');
+
+  $('#detHoje').innerHTML = detalhe.today.items.length
+    ? detalhe.today.items.map((i) => `
+      <div class="mc${i.done ? ' done' : ''}${i.overdue && !i.done ? ' atrasada' : ''}" style="cursor:default">
+        <span class="chk"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#0c0c0e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="mc-body">
+          <span class="mc-mat"><i class="mc-dot" style="background:${esc(i.color)}"></i>${esc(i.subjName)}</span>
+          <span class="mc-top">${esc(i.topicName || i.subjName)}</span>
+        </span>
+        <span class="badge ${VM.badgeClass(i.tag)}">${esc(i.label)}</span>
+      </div>`).join('')
+    : '<div class="empty">Nada agendado pra hoje.</div>';
+
+  const porMateria = {};
+  for (const t of detalhe.topics) (porMateria[t.subj] = porMateria[t.subj] || []).push(t);
+  $('#detTopicos').innerHTML = p.bySubj.map((s) => `
+    <div class="mat-blk">
+      <button class="mat-hdr"><i class="mc-dot" style="background:${esc(s.color)}"></i>
+        <span class="mat-nome">${esc(s.name)}</span>
+        <span class="pg-sub" style="margin:0">${s.doneSteps}/${s.totalSteps}</span>
+        <span class="mat-arr">▼</span></button>
+      <div class="mat-tops">${(porMateria[s.id] || []).map(renderTopico).join('')}</div>
+    </div>`).join('');
+  $$('#detTopicos .mat-hdr').forEach((h) => h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
+  $$('#detTopicos [data-extra]').forEach((b) => b.addEventListener('click', () => {
+    topicoExtra = b.dataset.extra;
+    $('#extraTopico').textContent = b.dataset.nome;
+    msg($('#extraMsg'), '');
+    $('#modalExtra').classList.add('on');
+  }));
+
+  $('#detRecentes').innerHTML = detalhe.recent.length
+    ? detalhe.recent.slice(0, 12).map((c) => `
+      <div style="display:flex;gap:8px;font-size:.76rem;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span style="color:var(--muted);width:62px">${esc(VM.fmtBR(c.done_on))}</span>
+        <span style="flex:1">${esc(c.step || c.item_type)}${c.subj ? ` · ${esc(c.subj)}` : ''}</span>
+        <span style="color:var(--muted)">${esc(VM.fmtHoras(c.hours))}</span>
+      </div>`).join('')
+    : '<div class="empty">Nenhuma conclusão registrada ainda.</div>';
+
+  tela('detalhe');
+  window.scrollTo(0, 0);
+}
+
+function renderTopico(t) {
+  const regua = VM.reguaEtapas(t).map((e) =>
+    `<span class="td ${e.estado}" title="${esc(e.label)}${e.done ? ` — feito em ${VM.fmtBR(e.done)}` : e.due ? ` — vence ${VM.fmtBR(e.due)}` : ''}">${esc(e.curto)}</span>`).join('');
+  const proximo = t.nextStep
+    ? `próxima: ${esc(t.nextStep.label)}${t.nextStep.due ? ` em ${VM.fmtBR(t.nextStep.due)}` : ''}`
+    : 'trilha concluída';
+  const botaoExtra = t.canRequestExtra
+    ? `<button class="bs" data-extra="${esc(t.id)}" data-nome="${esc(t.name)}">Estudo Extra</button>`
+    : t.extra ? `<span class="badge b-accent">extra ${t.extra.done ? 'feito' : VM.fmtBR(t.extra.due)}</span>` : '';
+  return `<div class="tr">
+    <span class="tr-nome">${esc(t.name)}<br><span class="pg-sub" style="margin:0">${proximo}</span></span>
+    <span class="tdots">${regua}</span>
+    ${botaoExtra}
+  </div>`;
+}
+
+$$('[data-fechar]').forEach((b) => b.addEventListener('click', () => $('#modalExtra').classList.remove('on')));
+$('#btnConfirmarExtra').addEventListener('click', async () => {
+  try {
+    await API.extraDoAluno(detalhe.studentId, topicoExtra, Number($('#extraMin').value));
+    $('#modalExtra').classList.remove('on');
+    toast('Estudo Extra agendado pro aluno.');
+    await abrirAluno(detalhe.studentId);
+  } catch (err) {
+    msg($('#extraMsg'), err.message);
+  }
+});
+
+/* ── criar aluno ── */
+$('#btnCriar').addEventListener('click', async () => {
+  msg($('#novoMsg'), '');
+  try {
+    await API.criarAluno({
+      name: $('#nAluno').value.trim(),
+      email: $('#nEmail').value.trim() || undefined,
+      password: $('#nSenha').value || undefined,
+    });
+    $('#nAluno').value = $('#nEmail').value = $('#nSenha').value = '';
+    toast('Aluno criado.');
+    await carregarAlunos();
+  } catch (err) {
+    msg($('#novoMsg'), err.message);
+  }
+});
+
+/* ── boot ── */
+async function iniciar() {
+  const me = await API.me();
+  if (me.role !== 'professor') { location.href = '/'; return; }
+  $('#login').hidden = true;
+  $('#app').hidden = false;
+  $('#navNome').textContent = me.name || me.email;
+  await carregarAlunos();
+}
+
+(async () => {
+  if (API.sessao) {
+    try { await iniciar(); } catch { await API.logout(); }
+  }
+})();
+</script>
+</body>
+</html>

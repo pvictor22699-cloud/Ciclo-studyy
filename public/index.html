@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0c0c0e">
+<title>Ciclo de Estudos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="login-title">Ciclo <em style="color:var(--accent);font-style:normal">de Estudos</em></div>
+    <div class="login-sub">Entre pra ver o que vence hoje.</div>
+    <div id="loginMsg" class="msg erro"></div>
+    <form id="loginForm">
+      <div class="fg">
+        <label class="fl" for="email">E-mail</label>
+        <input class="fi" id="email" type="email" autocomplete="username" required>
+      </div>
+      <div class="fg">
+        <label class="fl" for="senha">Senha</label>
+        <input class="fi" id="senha" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="bp bw" id="btnEntrar" type="submit">Entrar</button>
+    </form>
+    <div class="login-sub" style="margin:14px 0 0">É professor? <a href="/professor.html">Abrir o painel</a></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" hidden>
+  <nav>
+    <div class="brand">Ciclo <em>Study</em></div>
+    <div class="nav-tabs">
+      <button class="ntab on" data-tela="hoje">Hoje</button>
+      <button class="ntab" data-tela="progresso">Progresso</button>
+      <button class="ntab" data-tela="agenda">Próximos dias</button>
+      <button class="ntab" data-tela="ajustes">Ajustes</button>
+    </div>
+    <div class="nav-user"><span id="navNome"></span><button class="bs" id="btnSair">Sair</button></div>
+  </nav>
+
+  <!-- HOJE -->
+  <section class="screen on" id="tela-hoje">
+    <div class="pg-title" id="hojeTitulo">Hoje</div>
+    <div class="pg-sub" id="hojeSub">carregando…</div>
+    <div id="hojeAviso" class="urg-banner" hidden></div>
+    <div class="g4" id="hojeStats"></div>
+    <div class="sec-label">Metas do dia</div>
+    <div class="mc-list" id="hojeLista"><div class="skel"></div><div class="skel"></div></div>
+  </section>
+
+  <!-- PROGRESSO -->
+  <section class="screen" id="tela-progresso">
+    <div class="pg-title">Progresso</div>
+    <div class="pg-sub" id="progSub"></div>
+    <div class="card" id="progGeral"></div>
+    <div class="sec-label">Por matéria</div>
+    <div id="progMaterias"></div>
+    <div class="sec-label">Tópicos</div>
+    <div id="progTopicos"></div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="screen" id="tela-agenda">
+    <div class="pg-title">Próximos dias</div>
+    <div class="pg-sub">Projeção do motor supondo que você conclua tudo em dia. Serve de bússola, não de promessa.</div>
+    <div id="agendaLista"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="screen" id="tela-ajustes">
+    <div class="pg-title">Ajustes</div>
+    <div class="pg-sub">O que mexe no ciclo. Mudanças valem já pro dia de hoje.</div>
+    <div id="ajustesMsg" class="msg ok"></div>
+    <div class="card">
+      <div class="fg">
+        <label class="fl" for="limite">Limite de horas por dia</label>
+        <input class="fi" id="limite" type="number" min="0.5" max="16" step="0.5">
+      </div>
+      <button class="bp" id="btnSalvarConfig">Salvar</button>
+    </div>
+    <div class="sec-label">Conta</div>
+    <div class="card-sm" id="contaInfo"></div>
+  </section>
+</div>
+
+<!-- MODAL: pedir estudo extra -->
+<div class="overlay" id="modalExtra">
+  <div class="modal">
+    <h3>Pedir Estudo Extra</h3>
+    <div class="pg-sub" id="extraTopico"></div>
+    <div id="extraMsg" class="msg erro"></div>
+    <div class="fg">
+      <label class="fl" for="extraMin">Minutos (máx. 120)</label>
+      <input class="fi" id="extraMin" type="number" min="5" max="120" step="5" value="60">
+    </div>
+    <div class="pg-sub">Cai 2 dias depois do Estudo 2 e só pode ser pedido uma vez por tópico.</div>
+    <div class="row-end">
+      <button class="bs" data-fechar>Cancelar</button>
+      <button class="bp" id="btnConfirmarExtra">Agendar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/view-model.js"></script>
+<script src="/js/api.js"></script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = VM.escapeHtml;
+
+let dia = null;        // payload de GET /today
+let progresso = null;  // payload de GET /progress
+let topicoExtra = null;
+
+/* ── infra ── */
+function toast(texto, erro) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (erro ? ' erro' : '');
+  el.textContent = texto;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+function msg(el, texto, tipo) {
+  el.className = `msg ${tipo || 'erro'}` + (texto ? ' on' : '');
+  el.textContent = texto || '';
+}
+
+/* ── login ── */
+$('#loginForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const btn = $('#btnEntrar');
+  btn.disabled = true;
+  msg($('#loginMsg'), '');
+  try {
+    const s = await API.login($('#email').value.trim(), $('#senha').value);
+    if (s.user.role === 'professor') { location.href = '/professor.html'; return; }
+    await iniciar();
+  } catch (err) {
+    msg($('#loginMsg'), err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$('#btnSair').addEventListener('click', async () => {
+  await API.logout();
+  location.reload();
+});
+
+/* ── navegação ── */
+$$('.ntab').forEach((tab) => {
+  tab.addEventListener('click', async () => {
+    $$('.ntab').forEach((t) => t.classList.toggle('on', t === tab));
+    $$('.screen').forEach((s) => s.classList.toggle('on', s.id === `tela-${tab.dataset.tela}`));
+    if (tab.dataset.tela === 'progresso') await carregarProgresso();
+    if (tab.dataset.tela === 'agenda') await carregarAgenda();
+  });
+});
+
+/* ── tela HOJE ── */
+function renderHoje() {
+  $('#hojeTitulo').textContent = VM.fmtLongo(dia.date);
+  $('#hojeSub').textContent = VM.resumoDia(dia);
+
+  const aviso = $('#hojeAviso');
+  const partes = [];
+  if (dia.hadOverdue) partes.push('Você tem metas atrasadas — elas entram primeiro.');
+  if (dia.deferred) partes.push(`${dia.deferred} meta(s) ficaram pra depois por causa do limite diário.`);
+  aviso.hidden = partes.length === 0;
+  aviso.textContent = partes.join(' ');
+
+  $('#hojeStats').innerHTML = [
+    ['Metas', `${dia.doneCount}/${dia.total}`],
+    ['Horas hoje', VM.fmtHoras(dia.plannedHours)],
+    ['Ofensiva', `${dia.streak.count}d`],
+    ['Progresso', `${dia.progress.percent}%`],
+  ].map(([l, n]) => `<div class="stat"><div class="stat-n">${esc(n)}</div><div class="stat-l">${esc(l)}</div></div>`).join('');
+
+  const lista = $('#hojeLista');
+  if (!dia.items.length) {
+    lista.innerHTML = '<div class="empty">Nada vence hoje. O motor volta a agendar assim que a próxima etapa amadurecer.</div>';
+    return;
+  }
+  lista.innerHTML = dia.items.map((item) => `
+    <button class="mc${item.done ? ' done' : ''}${item.overdue && !item.done ? ' atrasada' : ''}" data-id="${esc(item.id)}" ${item.done ? 'disabled' : ''}>
+      <span class="chk"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#0c0c0e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="mc-body">
+        <span class="mc-mat"><i class="mc-dot" style="background:${esc(item.color)}"></i>${esc(item.subjName)}</span>
+        <span class="mc-top">${esc(item.topicName || item.subjName)}</span>
+        <span class="mc-sub">${esc(VM.itemSubtitulo(item))}</span>
+      </span>
+      <span class="badge ${VM.badgeClass(item.tag)}">${esc(item.label)} · ${esc(VM.fmtHoras(item.hours))}</span>
+    </button>`).join('');
+
+  $$('#hojeLista .mc').forEach((btn) => {
+    btn.addEventListener('click', () => concluir(btn));
+  });
+}
+
+async function concluir(btn) {
+  const id = btn.dataset.id;
+  btn.classList.add('busy');
+  try {
+    const res = await API.concluir(id, dia.version);
+    dia = res;
+    renderHoje();
+    progresso = null;
+    if (res.allDone) toast(`Dia fechado! Ofensiva de ${res.streak.count} dia(s).`);
+    else toast('Meta concluída.');
+  } catch (err) {
+    btn.classList.remove('busy');
+    if (err.status === 409) {
+      toast('Outro dispositivo atualizou o dia. Recarregando…', true);
+      await carregarHoje();
+    } else {
+      toast(err.message, true);
+    }
+  }
+}
+
+async function carregarHoje() {
+  dia = await API.hoje();
+  renderHoje();
+}
+
+/* ── tela PROGRESSO ── */
+async function carregarProgresso(forcar) {
+  if (progresso && !forcar) return renderProgresso();
+  progresso = await API.progresso();
+  renderProgresso();
+}
+
+function renderProgresso() {
+  const p = progresso.progress;
+  $('#progSub').textContent = `Começou em ${VM.fmtBR(progresso.startDate)} · ${p.done} de ${p.total} etapas concluídas`;
+  $('#progGeral').innerHTML = `
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+      <div style="font-family:'Syne';font-size:2rem;font-weight:800;color:${VM.corProgresso(p.percent)}">${p.percent}%</div>
+      <div class="pg-sub" style="margin:0">${VM.fmtHoras(p.hours)} estudadas · ${p.periodicas} periódicas</div>
+    </div>
+    <div class="pbar-bg h8"><div class="pbar" style="width:${p.percent}%;background:${VM.corProgresso(p.percent)}"></div></div>`;
+
+  $('#progMaterias').innerHTML = p.bySubj.map((s) => `
+    <div class="prog-materia">
+      <i class="mc-dot" style="background:${esc(s.color)}"></i>
+      <span class="pm-nome">${esc(s.name)}${s.solido ? ' · <span class="badge b-muted">sólido</span>' : ''}</span>
+      <span style="flex:2"><span class="pbar-bg h5" style="display:block"><span class="pbar" style="display:block;width:${s.percent}%;background:${esc(s.color)}"></span></span></span>
+      <span class="pm-pct">${s.percent}%</span>
+    </div>`).join('');
+
+  const porMateria = {};
+  for (const t of progresso.topics) (porMateria[t.subj] = porMateria[t.subj] || []).push(t);
+
+  $('#progTopicos').innerHTML = p.bySubj.map((s) => `
+    <div class="mat-blk" data-subj="${esc(s.id)}">
+      <button class="mat-hdr"><i class="mc-dot" style="background:${esc(s.color)}"></i>
+        <span class="mat-nome">${esc(s.name)}</span>
+        <span class="pg-sub" style="margin:0">${s.doneSteps}/${s.totalSteps}</span>
+        <span class="mat-arr">▼</span></button>
+      <div class="mat-tops">${(porMateria[s.id] || []).map(renderTopico).join('')}</div>
+    </div>`).join('');
+
+  $$('#progTopicos .mat-hdr').forEach((h) => {
+    h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+  });
+  $$('#progTopicos [data-extra]').forEach((b) => {
+    b.addEventListener('click', () => abrirExtra(b.dataset.extra, b.dataset.nome));
+  });
+}
+
+function renderTopico(t) {
+  const regua = VM.reguaEtapas(t).map((e) =>
+    `<span class="td ${e.estado}" title="${esc(e.label)}${e.done ? ` — feito em ${VM.fmtBR(e.done)}` : e.due ? ` — vence ${VM.fmtBR(e.due)}` : ''}">${esc(e.curto)}</span>`).join('');
+  const proximo = t.nextStep
+    ? `próxima: ${esc(t.nextStep.label)}${t.nextStep.due ? ` em ${VM.fmtBR(t.nextStep.due)}` : ' (ainda não agendada)'}`
+    : 'trilha concluída';
+  const botaoExtra = t.canRequestExtra
+    ? `<button class="bs" data-extra="${esc(t.id)}" data-nome="${esc(t.name)}">Estudo Extra</button>`
+    : t.extra
+      ? `<span class="badge b-accent">extra ${t.extra.done ? 'feito' : VM.fmtBR(t.extra.due)}</span>`
+      : '';
+  return `<div class="tr">
+    <span class="tr-nome">${esc(t.name)}<br><span class="pg-sub" style="margin:0">${proximo}</span></span>
+    <span class="tdots">${regua}</span>
+    ${botaoExtra}
+  </div>`;
+}
+
+/* ── tela AGENDA ── */
+async function carregarAgenda() {
+  const proj = await API.projecao(21);
+  $('#agendaLista').innerHTML = proj.days.length
+    ? proj.days.map((d) => `
+      <div class="proj-dia">
+        <div class="proj-data">${esc(VM.fmtLongo(d.date))}</div>
+        ${d.items.map((i) => `<div class="ai ${VM.agendaClass(i.tag)}">${esc(i.label)} · ${esc(i.topicName || i.subjName)} · ${esc(VM.fmtHoras(i.hours))}</div>`).join('')}
+      </div>`).join('')
+    : '<div class="empty">Sem projeção — nada agendado nos próximos dias.</div>';
+}
+
+/* ── modal de Estudo Extra ── */
+function abrirExtra(topicId, nome) {
+  topicoExtra = topicId;
+  $('#extraTopico').textContent = nome;
+  msg($('#extraMsg'), '');
+  $('#modalExtra').classList.add('on');
+}
+$$('[data-fechar]').forEach((b) => b.addEventListener('click', () => $('#modalExtra').classList.remove('on')));
+$('#btnConfirmarExtra').addEventListener('click', async () => {
+  try {
+    await API.pedirExtra(topicoExtra, Number($('#extraMin').value));
+    $('#modalExtra').classList.remove('on');
+    toast('Estudo Extra agendado.');
+    await carregarProgresso(true);
+    await carregarHoje();
+  } catch (err) {
+    msg($('#extraMsg'), err.message);
+  }
+});
+
+/* ── ajustes ── */
+$('#btnSalvarConfig').addEventListener('click', async () => {
+  try {
+    const res = await API.salvarConfig({ limit: Number($('#limite').value) });
+    msg($('#ajustesMsg'), `Limite salvo: ${res.config.limit}h por dia.`, 'ok');
+    await carregarHoje();
+  } catch (err) {
+    msg($('#ajustesMsg'), err.message, 'erro');
+  }
+});
+
+/* ── boot ── */
+async function iniciar() {
+  const me = await API.me();
+  if (me.role === 'professor') { location.href = '/professor.html'; return; }
+  $('#login').hidden = true;
+  $('#app').hidden = false;
+  $('#navNome').textContent = me.name || me.email;
+  $('#contaInfo').innerHTML = `${esc(me.email)}<br><span class="pg-sub" style="margin:0">ciclo: ${esc(me.student ? me.student.name : '—')} · fuso ${esc(me.student ? me.student.timezone : '—')}</span>`;
+  await carregarHoje();
+  const prog = await API.progresso();
+  progresso = prog;
+  $('#limite').value = prog.config.limit;
+}
+
+(async () => {
+  if (API.sessao) {
+    try {
+      await iniciar();
+    } catch (err) {
+      await API.logout();
+    }
+  }
+})();
+</script>
+</body>
+</html>
