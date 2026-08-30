@@ -164,12 +164,26 @@ O `index.html` da raiz é o app antigo do CFO Bombeiros, intocado.
 > A `service_role key` **nunca** vai pro navegador. Ela só existe no servidor —
 > por isso o login passa pela API em vez do front falar direto com o Supabase.
 
-### Deploy
+### Deploy (Vercel)
 
-`vercel.json` já está pronto: `/api/*` cai em `api/index.js` (o mesmo handler do
-servidor local) e `public/` é servido como estático. Configure as variáveis de
-ambiente no painel da Vercel. Netlify funciona igual com um
-`netlify.toml` apontando `/api/*` pra uma function.
+`vercel.json` já está pronto:
+
+- `outputDirectory: public` — o front sai de `public/`, **não** da raiz (senão a
+  Vercel serviria o `index.html` antigo do CFO Bombeiros).
+- `api/[...path].js` — rota catch-all: atende todo `/api/*` com o mesmo handler
+  do servidor local, sem rewrite nenhum.
+- `includeFiles: server/engine/*.js` — obrigatório. O `loader.js` lê o
+  `engine.js` com `fs.readFileSync` em runtime; sem isso a Vercel não empacota o
+  arquivo e a função quebra com ENOENT. `tests/vercel-adapter.test.js` segura
+  essa regressão.
+
+As variáveis de ambiente **não** vêm do `.env` (ele é gitignored e nunca sai da
+sua máquina): recadastre `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+`SUPABASE_SERVICE_ROLE_KEY`, `BACKEND=supabase` e `ALLOW_TODAY_OVERRIDE=false`
+no painel do projeto, em Settings → Environment Variables.
+
+Netlify funciona igual com um `netlify.toml` apontando `/api/*` pra uma
+function.
 
 ---
 

@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "functions": { "api/index.js": { "runtime": "@vercel/node@5" } },
-  "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index.js" }]
+  "outputDirectory": "public",
+  "functions": {
+    "api/[...path].js": {
+      "includeFiles": "server/engine/*.js"
+    }
+  }
 }
